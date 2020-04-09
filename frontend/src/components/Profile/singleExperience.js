@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import cookie from 'react-cookies';
+import { connect } from "react-redux";
+import { studentUpdateExperience, studentDeleteExperience } from "../../js/actions/profileAction";
 
 class SingleExperience extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            ID: this.props.item.ID,
+            ID: this.props.item._id,
             companyName: this.props.item.companyName,
             title: this.props.item.title,
             location: this.props.item.location,
@@ -15,31 +17,16 @@ class SingleExperience extends Component {
             editFlag: false
         }
         this.handleCancel = this.handleCancel.bind(this);
-        this.handleChange = this.handleChange.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
     }
     handleDelete = () => {
         let data = {
-            ID: this.state.ID
+            _id: this.state.ID,
+            SID: cookie.load("SID")
         }
-        console.log('ID je send karvano 6e', data)
-        axios.post('http://localhost:3001/deleteExperience', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    editFlag: false
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
-    handleChange = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
+        this.props.studentDeleteExperience(data);
     }
     handleEdit = () => {
         this.setState({
@@ -51,30 +38,18 @@ class SingleExperience extends Component {
             editFlag: false
         })
     }
-    handleSave = (e) => {
-        // e.preventDefault();
+    handleSave = () => {
         let data = {
-            ID: this.state.ID,
-            SID: localStorage.getItem("ID"),
-            companyName: this.state.companyName,
-            title: this.state.title,
-            location: this.state.location,
-            startDate: this.state.startDate,
-            endDate: this.state.endDate,
-            description: this.state.description
+            _id: this.state.ID,
+            SID: cookie.load("SID"),
+            companyName: document.getElementById("companyName").value,
+            title: document.getElementById("title").value,
+            location: document.getElementById("location").value,
+            startDate: document.getElementById("startDate").value,
+            endDate: document.getElementById("endDate").value,
+            description: document.getElementById("description").value
         }
-        console.log("data in single experience", data);
-        axios.post('http://localhost:3001/updateExperience', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-
-                this.setState({
-                    editFlag: false
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.props.studentUpdateExperience(data);
     }
     render() {
         let singleExp = null;
@@ -111,7 +86,6 @@ class SingleExperience extends Component {
                             id="companyName"
                             name="companyName"
                             placeholder="Name of Company"
-                            onChange={this.handleChange}
                             required
                             autoFocus />
                         <br />
@@ -121,7 +95,6 @@ class SingleExperience extends Component {
                             id="title"
                             name="title"
                             placeholder="Title of Experience"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -130,7 +103,6 @@ class SingleExperience extends Component {
                             id="location"
                             name="location"
                             placeholder="Location"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -139,7 +111,6 @@ class SingleExperience extends Component {
                             id="startDate"
                             name="startDate"
                             placeholder="Start Date"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -148,7 +119,6 @@ class SingleExperience extends Component {
                             id="endDate"
                             name="endDate"
                             placeholder="End Date"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -156,8 +126,7 @@ class SingleExperience extends Component {
                             type="text"
                             id="description"
                             name="description"
-                            placeholder="description"
-                            onChange={this.handleChange}
+                            placeholder="Description"
                             required />
                         <br />
                         <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleCancel}>Cancel</button>
@@ -175,7 +144,7 @@ class SingleExperience extends Component {
     }
 }
 
-export default SingleExperience;
+export default connect(null, { studentUpdateExperience, studentDeleteExperience })(SingleExperience);
 
 
 

@@ -1,4 +1,4 @@
-import { STUDENT_GET_BASIC_DETAILS, STUDENT_UPDATE_BASIC_DETAILS, STUDENT_GET_CONTACT_INFO, STUDENT_UPDATE_CONTACT_INFO, STUDENT_GET_CAREER_OBJECTIVE, STUDENT_UPDATE_CAREER_OBJECTIVE, STUDENT_GET_SKILLS, STUDENT_ADD_SKILL, STUDENT_UPDATE_SKILL, STUDENT_DELETE_SKILL, STUDENT_GET_EDUCATION_DETAILS, STUDENT_EXPERIENCE } from '../constants/action-types';
+import { STUDENT_GET_BASIC_DETAILS, STUDENT_UPDATE_BASIC_DETAILS, STUDENT_GET_CONTACT_INFO, STUDENT_UPDATE_CONTACT_INFO, STUDENT_SKILLS, STUDENT_EDUCATION_DETAILS, STUDENT_CAREER_OBJECTIVE, STUDENT_EXPERIENCE } from '../constants/action-types';
 const jwt_decode = require('jwt-decode')
 
 const initialState = {
@@ -46,41 +46,19 @@ export default function studentProfileReducer(state = initialState, action) {
                 email: decoded.email,
                 phone: decoded.phone
             });
-        case STUDENT_GET_CAREER_OBJECTIVE:
+        case STUDENT_CAREER_OBJECTIVE:
             // console.log("inside student get career objective")
             var decoded = jwt_decode(action.payload.split(' ')[1]);
             return Object.assign({}, state, {
                 careerObjective: decoded.careerObjective
             });
-        case STUDENT_UPDATE_CAREER_OBJECTIVE:
-            var decoded = jwt_decode(action.payload.split(' ')[1]);
-            return Object.assign({}, state, {
-                careerObjective: decoded.careerObjective
-            });
-        case STUDENT_GET_SKILLS:
+        case STUDENT_SKILLS:
             console.log("inside GET SKILLS reducer")
             var decoded = jwt_decode(action.payload.split(' ')[1]);
             return Object.assign({}, state, {
                 skills: decoded.skills
             });
-        case STUDENT_UPDATE_SKILL:
-            console.log("inside UPDATE SKILLS reducer")
-            var decoded = jwt_decode(action.payload.split(' ')[1]);
-            return Object.assign({}, state, {
-                skills: decoded.skills
-            });
-        case STUDENT_ADD_SKILL:
-            console.log("inside ADD SKILLS reducer")
-            var decoded = jwt_decode(action.payload.split(' ')[1]);
-            return Object.assign({}, state, {
-                skills: decoded.skills
-            });
-        case STUDENT_DELETE_SKILL:
-            var decoded = jwt_decode(action.payload.split(' ')[1]);
-            return Object.assign({}, state, {
-                skills: decoded.skills
-            });
-        case STUDENT_GET_EDUCATION_DETAILS:
+        case STUDENT_EDUCATION_DETAILS:
             console.log("inside GET EDUCATION reducer")
             var decoded = jwt_decode(action.payload.split(' ')[1]);
             return Object.assign({}, state, {

@@ -1,4 +1,4 @@
-import { STUDENT_GET_BASIC_DETAILS, STUDENT_UPDATE_BASIC_DETAILS, STUDENT_GET_CONTACT_INFO, STUDENT_UPDATE_CONTACT_INFO, STUDENT_GET_CAREER_OBJECTIVE, STUDENT_UPDATE_CAREER_OBJECTIVE, STUDENT_GET_SKILLS, STUDENT_ADD_SKILL, STUDENT_UPDATE_SKILL, STUDENT_DELETE_SKILL, STUDENT_GET_EDUCATION_DETAILS, STUDENT_EXPERIENCE } from '../constants/action-types';
+import { STUDENT_GET_BASIC_DETAILS, STUDENT_UPDATE_BASIC_DETAILS, STUDENT_GET_CONTACT_INFO, STUDENT_UPDATE_CONTACT_INFO, STUDENT_SKILLS, STUDENT_CAREER_OBJECTIVE, STUDENT_EDUCATION_DETAILS, STUDENT_EXPERIENCE } from '../constants/action-types';
 import cookie from "react-cookies";
 import axios from 'axios';
 const { backendURL } = require("../../Config");
@@ -93,7 +93,7 @@ export const studentGetCareerObjective = () => dispatch => {
     })
         .then(response => {
             // console.log("student updated contact info", response.data);
-            return dispatch({ type: STUDENT_GET_CAREER_OBJECTIVE, payload: response.data.token });
+            return dispatch({ type: STUDENT_CAREER_OBJECTIVE, payload: response.data.token });
         })
 }
 
@@ -110,7 +110,7 @@ export const studentUpdateCareerObjective = (formData) => dispatch => {
     })
         .then(response => {
             // console.log("student updated contact info", response.data);
-            return dispatch({ type: STUDENT_UPDATE_CAREER_OBJECTIVE, payload: response.data.token });
+            return dispatch({ type: STUDENT_CAREER_OBJECTIVE, payload: response.data.token });
         })
 }
 
@@ -130,7 +130,7 @@ export const studentGetSkills = () => dispatch => {
     })
         .then(response => {
             // console.log("student skills", response.data.token);
-            return dispatch({ type: STUDENT_GET_SKILLS, payload: response.data.token });
+            return dispatch({ type: STUDENT_SKILLS, payload: response.data.token });
         })
 }
 
@@ -146,8 +146,8 @@ export const studentAddSkill = (formData) => dispatch => {
         data: formData
     })
         .then(response => {
-            // console.log("student updated contact info", response.data);
-            // return dispatch({ type: STUDENT_ADD_SKILL, payload: response.data.token });
+            console.log("student updated contact info", response.data);
+            return dispatch({ type: STUDENT_SKILLS, payload: response.data.token });
         })
 }
 
@@ -164,7 +164,7 @@ export const studentUpdateSkill = (formData) => dispatch => {
     })
         .then(response => {
             // console.log("student updated contact info", response.data);
-            return dispatch({ type: STUDENT_UPDATE_SKILL, payload: response.data.token });
+            return dispatch({ type: STUDENT_SKILLS, payload: response.data.token });
         })
 }
 
@@ -181,7 +181,7 @@ export const studentDeleteSkill = (formData) => dispatch => {
     })
         .then(response => {
             // console.log("student updated contact info", response.data);
-            return dispatch({ type: STUDENT_DELETE_SKILL, payload: response.data.token });
+            return dispatch({ type: STUDENT_SKILLS, payload: response.data.token });
         })
 }
 
@@ -201,7 +201,7 @@ export const studentGetEducationDetails = () => dispatch => {
     })
         .then(response => {
             // console.log("student skills", response.data.token);
-            return dispatch({ type: STUDENT_GET_EDUCATION_DETAILS, payload: response.data.token });
+            return dispatch({ type: STUDENT_EDUCATION_DETAILS, payload: response.data.token });
         })
 }
 
@@ -218,7 +218,7 @@ export const studentAddEducationDetails = (formData) => dispatch => {
     })
         .then(response => {
             console.log("student added education datails- ", response.data);
-            // return dispatch({ type: STUDENT_ADD_SKILL, payload: response.data.token });
+            return dispatch({ type: STUDENT_EDUCATION_DETAILS, payload: response.data.token });
         })
 }
 
@@ -235,7 +235,7 @@ export const studentUpdateEducationDetails = (formData) => dispatch => {
     })
         .then(response => {
             console.log("student updated education details- ", response.data);
-            // return dispatch({ type: STUDENT_UPDATE_SKILL, payload: response.data.token });
+            return dispatch({ type: STUDENT_EDUCATION_DETAILS, payload: response.data.token });
         })
 }
 
@@ -252,7 +252,7 @@ export const studentDeleteEducationDetails = (formData) => dispatch => {
     })
         .then(response => {
             console.log("student deleted education details- ", response.data);
-            return dispatch({ type: STUDENT_GET_EDUCATION_DETAILS, payload: response.data.token });
+            return dispatch({ type: STUDENT_EDUCATION_DETAILS, payload: response.data.token });
         })
 }
 

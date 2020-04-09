@@ -54,6 +54,12 @@ exports.serve = function serve(msg, callback) {
         case "add_experience":
             add_experience(msg, callback);
             break;
+        case "update_experience":
+            update_experience(msg, callback);
+            break;
+        case "delete_experience":
+            delete_experience(msg, callback);
+            break;
     }
 }
 
@@ -182,7 +188,7 @@ function update_skill(msg, callback) {
             student.skills = await student.skills.map(skill => skill === msg.body.skill ? msg.body.updatedSkill : skill);
             await student.save();
             console.log("student", student)
-            // callback(null, { skills: student.skills });
+            callback(null, { skills: student.skills });
         }
     })
 }
@@ -311,6 +317,50 @@ function add_experience(msg, callback) {
         else {
             await student.experienceDetails.push(body);
             await student.save();
+            // console.log("student- ", student)
+            callback(null, { experienceDetails: student.experienceDetails });
+        }
+    })
+}
+
+function update_experience(msg, callback) {
+    Students.findOneAndUpdate({ _id: msg.body.SID },
+        {
+            "$set":
+            {
+                "experienceDetails.$[element].companyName": msg.body.companyName,
+                "experienceDetails.$[element].location": msg.body.location,
+                "experienceDetails.$[element].title": msg.body.title,
+                "experienceDetails.$[element].startDate": msg.body.startDate,
+                "experienceDetails.$[element].endDate": msg.body.endDate,
+                "experienceDetails.$[element].description": msg.body.description
+            }
+        },
+        {
+            arrayFilters: [
+                { "element._id": msg.body._id }
+            ],
+            new: true
+        },
+        (err, student) => {
+            if (err) {
+                console.log("error", err)
+                callback(null, null);
+            }
+            else {
+                // console.log("student- ", student)
+                callback(null, { experienceDetails: student.experienceDetails });
+            }
+        })
+}
+
+function delete_experience(msg, callback) {
+    Students.findOneAndUpdate({ _id: msg.body.SID }, { "$pull": { "experienceDetails": { "_id": msg.body._id } } }, { new: true }, (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
             // console.log("student- ", student)
             callback(null, { experienceDetails: student.experienceDetails });
         }
