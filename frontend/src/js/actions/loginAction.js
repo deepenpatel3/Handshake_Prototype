@@ -2,9 +2,10 @@ import { STUDENT_LOG_IN, COMPANY_LOG_IN, STUDENT_SIGN_UP } from '../constants/ac
 import cookie from 'react-cookies';
 const fetch = require('node-fetch');
 const jwt_decode = require('jwt-decode');
+const { backendURL } = require("../../Config");
 
 export const studentLogin = (loginData) => dispatch => {
-    fetch('http://localhost:3001/student/account/signIn', {
+    fetch(backendURL + '/student/account/signIn', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -27,7 +28,7 @@ export const studentLogin = (loginData) => dispatch => {
 }
 
 export const companyLogin = (loginData) => dispatch => {
-    fetch('http://localhost:3001/company/account/signIn', {
+    fetch(backendURL + '/company/account/signIn', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -45,7 +46,7 @@ export const companyLogin = (loginData) => dispatch => {
 }
 
 export const studentSignup = (Data) => dispatch => {
-    fetch('http://localhost:3001/student/account/signUp', {
+    fetch(backendURL + '/student/account/signUp', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'

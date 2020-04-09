@@ -1,42 +1,24 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import cookie from "react-cookies";
+import { connect } from "react-redux";
+import { studentGetExperience, studentAddExperience } from "../../js/actions/profileAction";
 import SingleExperience from './singleExperience';
-axios.defaults.withCredentials = true;
 
 class Experience extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            experienceArray: [],
-            ID: '',
-            companyName: '',
-            title: '',
-            location: '',
-            startDate: '',
-            endDate: '',
-            description: '',
             addFlag: false
         }
-        this.handleChange = this.handleChange.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
         this.handleSave = this.handleSave.bind(this);
     }
     componentWillMount() {
-        axios.get('http://localhost:3001/getExperience', { params: { ID: localStorage.getItem("ID") } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    experienceArray: this.state.experienceArray.concat(response.data)
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.props.studentGetExperience();
     }
 
     handleToggle = () => {
-        console.log('addflag after add button: before toggling', this.state.addFlag)
+        // console.log('addflag after add button: before toggling', this.state.addFlag)
         if (this.state.addFlag === true) {
             this.setState({
                 addFlag: false
@@ -47,31 +29,20 @@ class Experience extends Component {
                 addFlag: true
             })
         }
-        console.log('addflag after add button: after toggling', this.state.addFlag)
+        // console.log('addflag after add button: after toggling', this.state.addFlag)
     }
 
-    handleSave = (e) => {
-        e.preventDefault();
+    handleSave = () => {
         let data = {
-            ID: localStorage.getItem("ID"),
-            companyName: this.state.companyName,
-            title: this.state.title,
-            location: this.state.location,
-            startDate: this.state.startDate,
-            endDate: this.state.endDate,
-            description: this.state.description
+            SID: cookie.load("SID"),
+            companyName: document.getElementById("companyName").value,
+            title: document.getElementById("title").value,
+            location: document.getElementById("location").value,
+            startDate: document.getElementById("startDate").value,
+            endDate: document.getElementById("endDate").value,
+            description: document.getElementById("description").value
         }
-        console.log('pressed save button', data)
-        axios.post('http://localhost:3001/addExperience', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    addFlag: true
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.props.studentAddExperience(data);
     }
     handleChange = (e) => {
         this.setState({
@@ -90,7 +61,6 @@ class Experience extends Component {
                             id="companyName"
                             name="companyName"
                             placeholder="Name of Company"
-                            onChange={this.handleChange}
                             required
                             autoFocus />
                         <br />
@@ -100,7 +70,6 @@ class Experience extends Component {
                             id="title"
                             name="title"
                             placeholder="Title of Experience"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -109,7 +78,6 @@ class Experience extends Component {
                             id="location"
                             name="location"
                             placeholder="Location"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -118,7 +86,6 @@ class Experience extends Component {
                             id="startDate"
                             name="startDate"
                             placeholder="Start Date"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -127,7 +94,6 @@ class Experience extends Component {
                             id="endDate"
                             name="endDate"
                             placeholder="End Date"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <input
@@ -136,7 +102,6 @@ class Experience extends Component {
                             id="description"
                             name="description"
                             placeholder="description"
-                            onChange={this.handleChange}
                             required />
                         <br />
                         <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleToggle}>Cancel</button>
@@ -149,7 +114,7 @@ class Experience extends Component {
                 <div>
                     <tr>
                         <td>
-                            {this.state.experienceArray.map(single => <SingleExperience key={single.ID} item={single} />)}
+                            {this.props.experienceDetails.map(single => <SingleExperience key={single._id} item={single} />)}
                             <div><button style={{ marginTop: '20px' }} className="btn btn-primary" onClick={this.handleToggle}>Add Experience</button></div>
 
                         </td>
@@ -162,7 +127,7 @@ class Experience extends Component {
                 <label>Experience</label>
                 <table className="table table-borderless">
                     <tbody>
-
+                        {/* <h1>{this.props.experienceDetails}</h1> */}
                         {educationElement}
                     </tbody>
                 </table>
@@ -170,5 +135,9 @@ class Experience extends Component {
         );
     }
 }
-
-export default Experience;
+function mapStateToProps(state) {
+    return {
+        experienceDetails: state.StudentProfile.experienceDetails
+    }
+}
+export default connect(mapStateToProps, { studentGetExperience, studentAddExperience })(Experience);

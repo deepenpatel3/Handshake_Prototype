@@ -22,7 +22,6 @@ mongoose.connect(mongoDB, options, (err) => {
     }
 });
 // mongoose.set('useFindAndModify', false);
-
 // Students.find({}, (err, result) => {
 //     if (err) {
 //         console.log("error", err)

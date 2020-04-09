@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import SingleSkill from './singleSkill';
 import { connect } from "react-redux";
-import { studentGetSkills } from "../../js/actions/profileAction";
+import { studentGetSkills, studentAddSkill } from "../../js/actions/profileAction";
+import cookie from "react-cookies";
 
 class Skills extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            skillArray: [],
-            ID: '',
-            skill: '',
             addFlag: false
         }
         this.handleToggle = this.handleToggle.bind(this);
@@ -31,23 +29,12 @@ class Skills extends Component {
             })
         }
     }
-    handleSave = (e) => {
-        console.log('skill sent', this.state.skill)
+    handleSave = () => {
         let data = {
-            ID: localStorage.getItem("ID"),
-            skill: this.state.skill
+            SID: cookie.load("SID"),
+            skill: document.getElementById("skill").value
         }
-        console.log('pressed save button', data)
-        // axios.post('http://localhost:3001/addSkill', data)
-        //     .then(response => {
-        //         console.log("Status Code : ", response.status);
-        //         this.setState({
-        //             addFlag: false
-        //         })
-        //     })
-        //     .catch(error => {
-        //         console.log(error);
-        //     })
+        this.props.studentAddSkill(data);
     }
     render() {
         let skillElement = null;
@@ -56,7 +43,6 @@ class Skills extends Component {
                 <div>
                     <form className='container' >
                         <input
-                            onChange={this.handleChange}
                             type='text' id='skill' name='skill' placeholder='Enter your skill'
                             required autoFocus />
                         <button className='btn btn-default btn-xs' onClick={this.handleToggle} type='submit'>Cancel</button>
@@ -69,7 +55,7 @@ class Skills extends Component {
                 <div>
                     <tr>
                         <td>
-                            <div>{this.state.skillArray.map(single => <SingleSkill key={single.SkillID} item={single} />)}</div>
+                            <div>{this.props.skills.map(single => <SingleSkill key={single} item={single} />)}</div>
                             <div>
                                 <button style={{ marginTop: '20px' }} className="btn btn-primary"
                                     onClick={this.handleToggle}>Add Skill</button>
@@ -92,4 +78,9 @@ class Skills extends Component {
     }
 }
 
-export default connect(null, { studentGetSkills })(Skills);
+function mapStateToProps(state) {
+    return {
+        skills: state.StudentProfile.skills
+    }
+}
+export default connect(mapStateToProps, { studentGetSkills, studentAddSkill })(Skills);

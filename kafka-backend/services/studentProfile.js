@@ -27,6 +27,33 @@ exports.serve = function serve(msg, callback) {
         case "get_skills":
             get_skills(msg, callback);
             break;
+        case "add_skill":
+            add_skill(msg, callback);
+            break;
+        case "update_skill":
+            update_skill(msg, callback);
+            break;
+        case "delete_skill":
+            delete_skill(msg, callback);
+            break;
+        case "get_education_details":
+            get_education_details(msg, callback);
+            break;
+        case "add_education_details":
+            add_education_details(msg, callback);
+            break;
+        case "update_education_details":
+            update_education_details(msg, callback);
+            break;
+        case "delete_education_details":
+            delete_education_details(msg, callback);
+            break;
+        case "get_experience":
+            get_experience(msg, callback);
+            break;
+        case "add_experience":
+            add_experience(msg, callback);
+            break;
     }
 }
 
@@ -126,6 +153,166 @@ function get_skills(msg, callback) {
         }
         else {
             callback(null, { skills: student.skills });
+        }
+    })
+}
+
+function add_skill(msg, callback) {
+    Students.findById({ _id: msg.body.SID }, async (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
+            await student.skills.push(msg.body.skill);
+            await student.save();
+            // console.log("student", student)
+            callback(null, { skills: student.skills });
+        }
+    })
+}
+
+function update_skill(msg, callback) {
+    Students.findById({ _id: msg.body.SID }, async (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
+            student.skills = await student.skills.map(skill => skill === msg.body.skill ? msg.body.updatedSkill : skill);
+            await student.save();
+            console.log("student", student)
+            // callback(null, { skills: student.skills });
+        }
+    })
+}
+
+function delete_skill(msg, callback) {
+    Students.findById({ _id: msg.body.SID }, async (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
+            await student.skills.splice(student.skills.indexOf(msg.body.skill), 1);
+            await student.save();
+            console.log("student", student)
+            callback(null, { skills: student.skills });
+        }
+    })
+}
+
+function get_education_details(msg, callback) {
+    Students.findOne({ _id: msg.body.SID }, (err, student) => {
+        if (err) {
+            console.log('get skills kafka error- ', err)
+            callback(null, { success: false })
+        }
+        else {
+            callback(null, { educationDetails: student.educationDetails });
+        }
+    })
+}
+
+function add_education_details(msg, callback) {
+    let body = {
+        school: msg.body.school,
+        location: msg.body.location,
+        degree: msg.body.degree,
+        major: msg.body.major,
+        passingYear: msg.body.passingYear,
+        gpa: msg.body.gpa
+    }
+    Students.findById({ _id: msg.body.SID }, async (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
+            await student.educationDetails.push(body);
+            await student.save();
+            // console.log("student- ", student)
+            callback(null, { educationDetails: student.educationDetails });
+        }
+    })
+}
+
+function update_education_details(msg, callback) {
+    Students.findOneAndUpdate({ _id: msg.body.SID },
+        {
+            "$set":
+            {
+                "educationDetails.$[element].school": msg.body.school,
+                "educationDetails.$[element].location": msg.body.location,
+                "educationDetails.$[element].degree": msg.body.degree,
+                "educationDetails.$[element].passingYear": msg.body.passingYear,
+                "educationDetails.$[element].major": msg.body.major,
+                "educationDetails.$[element].gpa": msg.body.gpa
+            }
+        },
+        {
+            arrayFilters: [
+                { "element._id": msg.body._id }
+            ],
+            new: true
+        },
+        (err, student) => {
+            if (err) {
+                console.log("error", err)
+                callback(null, null);
+            }
+            else {
+                // console.log("student- ", student)
+                callback(null, { educationDetails: student.educationDetails });
+            }
+        })
+}
+
+function delete_education_details(msg, callback) {
+    Students.findOneAndUpdate({ _id: msg.body.SID }, { "$pull": { "educationDetails": { "_id": msg.body._id } } }, { new: true }, (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
+            // console.log("student- ", student)
+            callback(null, { educationDetails: student.educationDetails });
+        }
+    })
+}
+
+function get_experience(msg, callback) {
+    Students.findOne({ _id: msg.body.SID }, (err, student) => {
+        if (err) {
+            console.log('get experience kafka error- ', err)
+            callback(null, null)
+        }
+        else {
+            console.log("inside GET EXPERIENCE KAFKA, STUDENT- ", student)
+            callback(null, { experienceDetails: student.experienceDetails });
+        }
+    })
+}
+
+function add_experience(msg, callback) {
+    let body = {
+        companyName: msg.body.companyName,
+        title: msg.body.title,
+        location: msg.body.location,
+        startDate: msg.body.startDate,
+        endDate: msg.body.endDate,
+        description: msg.body.description
+    }
+    Students.findById({ _id: msg.body.SID }, async (err, student) => {
+        if (err) {
+            console.log("error", err)
+            callback(null, null);
+        }
+        else {
+            await student.experienceDetails.push(body);
+            await student.save();
+            // console.log("student- ", student)
+            callback(null, { experienceDetails: student.experienceDetails });
         }
     })
 }

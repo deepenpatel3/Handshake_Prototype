@@ -11,10 +11,10 @@ var studentSchema = new Schema({
     dateOfBirth: Date,
     city: String,
     profilePic: String,
-    educationDetails: [{ school: String, locaion: String, degree: String, major: String, gpa: Number, passingYear: Number }],
+    educationDetails: [{ id: { type: mongoose.Types.ObjectId }, school: String, location: String, degree: String, major: String, gpa: Number, passingYear: Number }],
     careerObjective: String,
     phone: String,
-    experienceDetails: [{ company: String, title: String, location: String, startDate: Date, endDate: Date, description: String }]
+    experienceDetails: [{ id: { type: mongoose.Types.ObjectId }, companyName: String, title: String, location: String, startDate: Date, endDate: Date, description: String }]
 },
     {
         versionKey: false

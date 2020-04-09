@@ -11,10 +11,10 @@ var studentSchema = new Schema({
     dateOfBirth: Date,
     city: String,
     profilePic: String,
-    educationDetails: [{ school: String, locaion: String, degree: String, major: String, gpa: Number, passingYear: Number }],
+    educationDetails: [{ _id: Number, school: String, location: String, degree: String, major: String, gpa: Number, passingYear: Number }],
     careerObjective: String,
     phone: String,
-    experienceDetails: [{ company: String, title: String, location: String, startDate: Date, endDate: Date, description: String }]
+    experienceDetails: [{ _id: Number, company: String, title: String, location: String, startDate: Date, endDate: Date, description: String }]
 },
     {
         versionKey: false

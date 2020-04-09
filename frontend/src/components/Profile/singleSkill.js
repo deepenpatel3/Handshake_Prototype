@@ -1,41 +1,25 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-axios.defaults.withCredentials = true;
+import cookie from "react-cookies";
+import { connect } from "react-redux";
+import { studentUpdateSkill, studentDeleteSkill } from '../../js/actions/profileAction';
 
 class SingleSkill extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            ID: this.props.item.SkillID,
-            skill: this.props.item.skill,
+            skill: this.props.item,
             editFlag: false
         }
-        this.handleChange = this.handleChange.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
     }
     handleDelete = () => {
         let data = {
-            ID: this.state.ID,
-            SID: localStorage.getItem("ID")
+            SID: cookie.load("SID"),
+            skill: this.state.skill
         }
-        // console.log('ID to be sent', data)
-        axios.post('http://localhost:3001/deleteSkill', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    editFlag: false
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
-    handleChange = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
+        this.props.studentDeleteSkill(data);
     }
     handleToggle = () => {
         if (!this.state.editFlag) {
@@ -48,27 +32,17 @@ class SingleSkill extends Component {
             })
         }
     }
-    handleSave = (e) => {
-        e.preventDefault();
+    handleSave = () => {
         let data = {
-            ID: this.state.ID,
-            SID: localStorage.getItem("ID"),
-            skill: this.state.skill
+            SID: cookie.load("SID"),
+            skill: this.state.skill,
+            updatedSkill: document.getElementById("skill").value
         }
-        console.log("data in single skill", data);
-        axios.post('http://localhost:3001/updateSkill', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    editFlag: false
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.props.studentUpdateSkill(data);
     }
     render() {
         let singleExp = null;
+        // console.log('skill- ', this.state.skill)
         if (this.state.editFlag === false) {
             singleExp =
                 <div>
@@ -88,24 +62,23 @@ class SingleSkill extends Component {
         } else {
             singleExp =
                 <div>
-                    <form className="container">
+                    <form className="container" onSubmit={this.handleSave}>
                         <input
                             type="text"
                             id="skill"
                             name="skill"
                             placeholder="Enter your skill"
-                            onChange={this.handleChange}
                             required
                             autoFocus />
                         <br />
                         <button style={{ marginTop: '20px' }} className="btn btn-danger btn-xs" onClick={this.handleToggle}>Cancel</button>
-                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success btn-xs" onClick={this.handleSave}>Save</button>
+                        <button type="submit" style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success btn-xs">Save</button>
                     </form>
                 </div>
         }
         return (
             <div>
-                <div key={this.props.item.SkillID}>
+                <div key={this.props.item}>
 
                     {singleExp}
                 </div>
@@ -114,9 +87,4 @@ class SingleSkill extends Component {
     }
 }
 
-export default SingleSkill;
-
-
-
-
-
+export default connect(null, { studentUpdateSkill, studentDeleteSkill })(SingleSkill);

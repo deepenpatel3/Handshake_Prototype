@@ -165,4 +165,235 @@ router.get('/getSkills', function (req, res) {
         }
     });
 })
+
+router.post('/addSkill', function (req, res) {
+    console.log('inside add skill api');
+
+    kafka.make_request('student_profile', { "path": "add_skill", "body": req.body }, function (err, result) {
+        console.log("got back from add_skill kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                skills: result.skills
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/updateSkill', function (req, res) {
+    console.log('inside update skill api');
+
+    kafka.make_request('student_profile', { "path": "update_skill", "body": req.body }, function (err, result) {
+        console.log("got back from update_skill kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                skills: result.skills
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/deleteSkill', function (req, res) {
+    console.log('inside delete skill api');
+
+    kafka.make_request('student_profile', { "path": "delete_skill", "body": req.body }, function (err, result) {
+        console.log("got back from delete_skill kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                skills: result.skills
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.get('/getEducationDetails', function (req, res) {
+    console.log('inside get education api');
+
+    kafka.make_request('student_profile', { "path": "get_education_details", "body": req.query }, function (err, result) {
+        console.log("got back from get_education_details kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                educationDetails: result.educationDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/addEducationDetails', function (req, res) {
+    console.log('inside add education api');
+
+    kafka.make_request('student_profile', { "path": "add_education_details", "body": req.body }, function (err, result) {
+        console.log("got back from add_education kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                educationDetails: result.educationDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/updateEducationDetails', function (req, res) {
+    console.log('inside update education api');
+
+    kafka.make_request('student_profile', { "path": "update_education_details", "body": req.body }, function (err, result) {
+        console.log("got back from update_education_details kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                educationDetails: result.educationDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/deleteEducationDetails', function (req, res) {
+    console.log('inside update education api');
+
+    kafka.make_request('student_profile', { "path": "delete_education_details", "body": req.body }, function (err, result) {
+        console.log("got back from delete_education_details kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                educationDetails: result.educationDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.get('/getExperience', function (req, res) {
+    console.log('inside get experience api');
+
+    kafka.make_request('student_profile', { "path": "get_experience", "body": req.query }, function (err, result) {
+        console.log("got back from get_experience kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                experienceDetails: result.experienceDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/addExperience', function (req, res) {
+    console.log('inside addExperience api');
+
+    kafka.make_request('student_profile', { "path": "add_experience", "body": req.body }, function (err, result) {
+        console.log("got back from add_experience kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                experienceDetails: result.experienceDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/updateExperience', function (req, res) {
+    console.log('inside updateExperience api');
+
+    kafka.make_request('student_profile', { "path": "update_experience", "body": req.body }, function (err, result) {
+        console.log("got back from update_experience kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                experienceDetails: result.experienceDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
+
+router.post('/deleteExperience', function (req, res) {
+    console.log('inside deleteExperience api');
+
+    kafka.make_request('student_profile', { "path": "delete_experience", "body": req.body }, function (err, result) {
+        console.log("got back from delete_experience kafka");
+        if (err) {
+            console.log('error', err)
+            res.end();
+        } else {
+            console.log("result", result);
+            var payload = {
+                experienceDetails: result.experienceDetails
+            }
+            var token = jwt.sign(payload, secret, {
+                expiresIn: 1008000 // in seconds
+            });
+            res.end(JSON.stringify({ token: "JWT " + token }))
+        }
+    });
+})
 module.exports = router;

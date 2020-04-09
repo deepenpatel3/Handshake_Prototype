@@ -3,6 +3,7 @@ import cookie from "react-cookies";
 import { connect } from "react-redux";
 import { studentGetBasicDetails, studentUpdateBasicDetails } from "../../js/actions/profileAction";
 import axios from 'axios';
+const { backendURL } = require("../../Config");
 
 class BasicDetails extends Component {
     constructor(props) {
@@ -21,7 +22,7 @@ class BasicDetails extends Component {
             SID: cookie.load("SID")
         }
         axios({
-            url: 'http://localhost:3001/getProfilePic',
+            url: backendURL + '/getProfilePic',
             method: "GET",
             params: data
         })
@@ -122,7 +123,7 @@ class BasicDetails extends Component {
                 <div style={{ width: '1px solid black' }} className='col-md-6'>
                     <div>
                         <img src={this.state.profilePic} style={{ height: '150px', weight: '100px' }}></img>
-                        <form action="http://localhost:3001/updateProfilePic" method="POST" encType='multipart/form-data' >
+                        <form action={backendURL + "/updateProfilePic"} method="POST" encType='multipart/form-data' >
                             <input style={{ display: "none" }} name='SID' value={cookie.load("SID")}></input>
                             <input type='file' name='profilePic' id='profilePic'></input>
                             <button className='btn btn-primary' type='submit'>Save</button>

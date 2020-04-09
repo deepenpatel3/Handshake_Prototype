@@ -29,8 +29,8 @@ class Profile extends Component {
                 </div>
                 <div className='col-md-8'>
                     <div style={{ border: '1px dotted black' }}><CareerObjective /></div>
-                    {/*<div style={{ border: '1px dotted black' }}><EducationDetails /></div>
-                    {/* <div style={{ border: '1px dotted black' }}><Experience /></div> */}
+                    <div style={{ border: '1px dotted black' }}><EducationDetails /></div>
+                    <div style={{ border: '1px dotted black' }}><Experience /></div>
                 </div>
             </div>
         );
