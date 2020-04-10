@@ -31,7 +31,7 @@ class EducationDetails extends Component {
         }
     }
 
-    handleSave = () => {
+    handleSave = async (e) => {
         let data = {
             SID: cookie.load("SID"),
             school: document.getElementById("school").value,
@@ -41,7 +41,10 @@ class EducationDetails extends Component {
             passingYear: document.getElementById("passingYear").value,
             gpa: document.getElementById("gpa").value
         }
-        this.props.studentAddEducationDetails(data);
+        await this.props.studentAddEducationDetails(data);
+	this.setState({
+		addFlag: false
+	})
     }
     handleChange = (e) => {
         this.setState({

@@ -14,7 +14,7 @@ class SingleSkill extends Component {
         this.handleSave = this.handleSave.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
     }
-    handleDelete = () => {
+    handleDelete = (e) => {
         let data = {
             SID: cookie.load("SID"),
             skill: this.state.skill
@@ -32,13 +32,17 @@ class SingleSkill extends Component {
             })
         }
     }
-    handleSave = () => {
-        let data = {
+    handleSave = async (e) => {
+	e.preventDefault();        
+	let data = {
             SID: cookie.load("SID"),
             skill: this.state.skill,
             updatedSkill: document.getElementById("skill").value
         }
-        this.props.studentUpdateSkill(data);
+        await this.props.studentUpdateSkill(data);
+	this.setState({
+		editFlag: false
+	})
     }
     render() {
         let singleExp = null;

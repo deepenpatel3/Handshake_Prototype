@@ -27,12 +27,16 @@ class CareerObjective extends Component {
             editFlag: false
         })
     }
-    handleSave = () => {
+    handleSave = async (e) => {
+	e.preventDefault();
         let data = {
             SID: cookie.load("SID"),
             careerObjective: document.getElementById("careerObjective").value
         }
-        this.props.studentUpdateCareerObjective(data);
+        await this.props.studentUpdateCareerObjective(data);
+	this.setState({
+		editFlag: false
+	})
     }
     render() {
         let editButton = null;

@@ -29,12 +29,16 @@ class Skills extends Component {
             })
         }
     }
-    handleSave = () => {
-        let data = {
+    handleSave = async (e) => {
+	e.preventDefault();        
+	let data = {
             SID: cookie.load("SID"),
             skill: document.getElementById("skill").value
         }
-        this.props.studentAddSkill(data);
+        await this.props.studentAddSkill(data);
+	this.setState({
+		addFlag: false
+	})
     }
     render() {
         let skillElement = null;
