@@ -4,6 +4,7 @@ var ExtractJwt = require("passport-jwt").ExtractJwt;
 const passport = require("passport");
 var { secret } = require("./config");
 const Students = require("../Models/studentModel");
+const Company = require("../Models/companyModel");
 
 // Setup work and export for the JWT passport strategy
 function auth() {
@@ -30,7 +31,7 @@ function auth() {
     }))
     passport.use("company", new JwtStrategy(opts, (jwt_payload, callback) => {
         console.log("jwt payload", jwt_payload);
-        const user_id = jwt_payload._id;
+        const user_id = jwt_payload.CID;
         Company.findById(user_id, (err, results) => {
             if (err) {
                 return callback(err, false);

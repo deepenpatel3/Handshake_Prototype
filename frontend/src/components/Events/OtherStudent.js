@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import CompanyNavbar from '../Navbar/companyNavbar';
-import axios from 'axios';
 import { Link, Redirect } from "react-router-dom";
 import cookie from "react-cookies";
 
@@ -9,64 +8,23 @@ class OtherStudent extends Component {
         super(props);
         this.state = {
             student: this.props.location.state.student,
-            path: this.props.location.state.path,
-            Skills: [],
-            educationDetails: [],
-            experience: []
+            path: this.props.location.state.path
         }
-    }
-    async componentDidMount() {
-        await axios.get('http://localhost:3001/getSkills', { params: { ID: this.state.student.ID } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    Skills: response.data
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
-        await axios.get('http://localhost:3001/getEducationDetails', { params: { ID: this.state.student.ID } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    educationDetails: response.data
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
-        await axios.get('http://localhost:3001/getExperience', { params: { ID: this.state.student.ID } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    experience: response.data
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
     }
     render() {
         let redirectVar = null;
-        if (!cookie.load('CID')) {
-            redirectVar = <Redirect to="/companySignIn" />;
-        }
-        let educationElement = this.state.educationDetails.map(education => {
+        let educationElement = this.state.student.educationDetails.map(education => {
             return (
                 <div>
                     <li className="list-group-item">{education.school}</li>
-                    <li className="list-group-item">{education.schoolLocation}</li>
+                    <li className="list-group-item">{education.location}</li>
                     <li className="list-group-item">{education.degree}</li>
                     <li className="list-group-item">{education.major}</li>
                     <li className="list-group-item">{education.gpa}</li>
                 </div>
             )
         })
-        let experienceElement = this.state.experience.map(experience => {
+        let experienceElement = this.state.student.experienceDetails.map(experience => {
             return (
                 <div>
                     <li className="list-group-item">{experience.title}</li>
@@ -76,12 +34,11 @@ class OtherStudent extends Component {
                 </div>
             )
         })
-        let skillElement = this.state.Skills.map(Skill => {
-            return (<li className="list-group-item">{Skill.skill}</li>)
+        let skillElement = this.state.student.skills.map(Skill => {
+            return (<li className="list-group-item">{Skill}</li>)
         })
         return (
             <div className='container'>
-                {redirectVar}
                 < CompanyNavbar />
                 <Link to={this.state.path}>Back</Link>
                 <div style={{ marginTop: '20px' }} >
@@ -89,16 +46,23 @@ class OtherStudent extends Component {
                         <div style={{ textAlign: 'center' }}>
                             <div className='row'>
                                 <div className='col-4'>
-                                    <img style={{ height: '130px', weight: '90px' }} src={this.state.student.profilePicUrl}></img>
-                                    {/* <p>Profile Picture will go here</p> */}
+                                    <img style={{ height: '130px', weight: '90px' }} src={this.state.student.profilePic}></img>
+
                                 </div>
                                 <div className='col'>
                                     <ul className="list-group">
                                         <li className="list-group-item">{this.state.student.name}</li>
                                         <li className="list-group-item">{this.state.student.school}</li>
-                                        <li className="list-group-item">{this.state.student.degree}</li>
-                                        <li className="list-group-item">{this.state.student.passingYear}</li>
+                                        <li className="list-group-item">{this.state.student._id}</li>
                                     </ul>
+                                    <Link to={{
+                                        pathname: "/chatHistory",
+                                        state: {
+                                            _id: this.state.student._id,
+                                            name: this.state.student.name,
+                                            path: cookie.load("SID") ? '/messages' : "/companyMessages"
+                                        }
+                                    }} style={{ float: "left", marginTop: "40px" }} className="btn btn-primary btn-xs">Message</Link>
                                 </div>
                             </div>
                         </div>
@@ -130,7 +94,7 @@ class OtherStudent extends Component {
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div >
         );
     }
 }

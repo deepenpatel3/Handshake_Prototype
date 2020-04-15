@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import CompanyNavbar from '../Navbar/companyNavbar';
-import axios from 'axios';
 import cookie from "react-cookies";
+import { connect } from "react-redux";
 import { Redirect } from 'react-router-dom';
+import { companyGetDetails, companyUpdateContactDetails, companyUpdateBasicDetails } from "../../js/actions/profileAction";
+import axios from "axios";
+const { backendURL } = require("../../Config");
 
 class CompanyProfile extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            companyData: {},
+            profilePic: "",
             contactFlag: false,
             companyEditFlag: false
         }
@@ -18,32 +21,30 @@ class CompanyProfile extends Component {
         this.updateCompanyDetails = this.updateCompanyDetails.bind(this);
     }
     componentDidMount() {
-        axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/getCompanyDetails', { params: { CID: localStorage.getItem("CID") } })
+        console.log("inside COMPONENT DIDMOUNT")
+        this.props.companyGetDetails();
+        let data = {
+            CID: cookie.load("CID")
+        }
+        axios({
+            url: backendURL + '/getCompanyProfilePic',
+            method: "GET",
+            params: data
+        })
             .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
+                console.log("company profile pic", response.data);
                 this.setState({
-                    companyData: response.data
+                    profilePic: response.data
                 })
-            })
-            .catch(error => {
-                console.log('error', error);
             })
     }
-    updateContact = () => {
-        let data = { email: document.getElementById('email').value, phone: document.getElementById('phone').value, password: document.getElementById('pswd').value, CID: localStorage.getItem("CID") }
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/updateCompanyContact', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    contactFlag: false
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+    updateContact = (e) => {
+        e.preventDefault();
+        let data = { email: document.getElementById('email').value, phone: document.getElementById('phone').value, CID: cookie.load("CID") }
+        this.props.companyUpdateContactDetails(data);
+        this.setState({
+            contactFlag: false
+        })
     }
     editContact = () => {
         this.setState({
@@ -62,18 +63,17 @@ class CompanyProfile extends Component {
         })
     }
     updateCompanyDetails = (e) => {
-        let data = { companyName: document.getElementById('companyName').value, location: document.getElementById('location').value, description: document.getElementById('description').value, CID: localStorage.getItem("CID") }
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/updateCompanyDetails', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    companyEditFlag: false
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+        e.preventDefault();
+        let data = {
+            companyName: document.getElementById('companyName').value,
+            location: document.getElementById('location').value,
+            description: document.getElementById('description').value,
+            CID: cookie.load("CID")
+        }
+        this.props.companyUpdateBasicDetails(data);
+        this.setState({
+            companyEditFlag: false
+        })
     }
     render() {
         let contactOrForm = null, companyOrForm = null, redirectVar = null;
@@ -83,11 +83,10 @@ class CompanyProfile extends Component {
         if (this.state.contactFlag) {
             contactOrForm =
                 <div>
-                    <form className="form-group">
+                    <form className="form-group" onSubmit={this.updateContact}>
                         <input className="form-control" type='text' id='email' name='email' placeholder='Enter your email' required autoFocus />
                         <input className="form-control" type='text' id='phone' name='phone' placeholder='Enter your phone' required />
-                        <input className="form-control" type='password' id='pswd' name='pswd' placeholder='Enter password' required />
-                        <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' onClick={this.updateContact}>Save</button>
+                        <button type="submit" style={{ marginTop: '10px' }} className='btn btn-success btn-xs' >Save</button>
                         <button style={{ marginTop: '10px' }} className='btn btn-default btn-xs' onClick={this.handleCancel}>Cancel</button>
                     </form>
                 </div>
@@ -103,18 +102,18 @@ class CompanyProfile extends Component {
                             <button className='btn btn-default btn-xs' onClick={this.editContact}>Edit</button>
                         </div>
                     </div>
-                    <h5>Email: {this.state.companyData.length > 0 ? this.state.companyData[0].email : null}</h5>
-                    <h5>Phone: {this.state.companyData.length > 0 ? this.state.companyData[0].phone : null}</h5>
+                    <h5>Email: {this.props.email}</h5>
+                    <h5>Phone: {this.props.phone}</h5>
                 </div>
         }
         if (this.state.companyEditFlag) {
             companyOrForm =
                 <div>
-                    <form className="form-group">
+                    <form className="form-group" onSubmit={this.updateCompanyDetails}>
                         <input className="form-control" type='text' id='companyName' placeholder='Enter Company name' required autoFocus />
                         <input className="form-control" type='text' id='location' placeholder='Location' required />
                         <input className="form-control" type='text' id='description' placeholder='Descrption' required />
-                        <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' onClick={this.updateCompanyDetails}>Save</button>
+                        <button type="submit" style={{ marginTop: '10px' }} className='btn btn-success btn-xs' >Save</button>
                         <button style={{ marginTop: '10px' }} className='btn btn-default btn-xs' onClick={this.handleCancel}>Cancel</button>
                     </form>
                 </div>
@@ -123,16 +122,16 @@ class CompanyProfile extends Component {
                 <div>
                     <div className='row'>
                         <div className='col'>
-                            <h1>{this.state.companyData.length > 0 ? this.state.companyData[0].companyName : null}</h1>
+                            <h1>{this.props.companyName}</h1>
                         </div>
                         <div className='col'>
                             <button className='btn btn-default btn-xs' onClick={this.handleCompanyEdit}>Edit</button>
                         </div>
                     </div>
-                    <div style={{ marginTop: '10px' }}><h5>{this.state.companyData.length > 0 ? this.state.companyData[0].location : null}</h5></div>
+                    <div style={{ marginTop: '10px' }}><h5>{this.props.location}</h5></div>
                     <div style={{ marginTop: '20px' }}>
-                        <label>Description:</label>
-                        <h4>{this.state.companyData.length > 0 ? this.state.companyData[0].description : null}</h4>
+                        <h4>Description:</h4>
+                        <h4>{this.props.description}</h4>
                     </div>
                 </div>
         }
@@ -143,8 +142,13 @@ class CompanyProfile extends Component {
                 <div style={{ textAlign: 'center' }} className='col-md-5'>
                     <div className='row'>
                         <div style={{ marginTop: '5px' }} className='col-5'>
-                            <label>Profile Picture will go here.</label>
 
+                            <img src={this.state.profilePic} style={{ height: '150px', weight: '100px' }}></img>
+                            <form action={backendURL + "/updateCompanyProfilePic"} method="POST" encType='multipart/form-data' >
+                                <input style={{ display: "none" }} name='CID' value={cookie.load("CID")}></input>
+                                <input type='file' name='profilePic' id='profilePic'></input>
+                                <button className='btn btn-primary' type='submit'>Save</button>
+                            </form>
                         </div>
                         <div style={{ marginTop: '6px', textAlign: 'left' }} className='col-7'>
                             {contactOrForm}
@@ -158,5 +162,14 @@ class CompanyProfile extends Component {
         );
     }
 }
+function mapStateToProps(state) {
+    return {
+        companyName: state.CompanyProfile.companyName,
+        email: state.CompanyProfile.email,
+        phone: state.CompanyProfile.phone,
+        description: state.CompanyProfile.description,
+        location: state.CompanyProfile.location
+    }
+}
 
-export default CompanyProfile;
+export default connect(mapStateToProps, { companyGetDetails, companyUpdateContactDetails, companyUpdateBasicDetails })(CompanyProfile);

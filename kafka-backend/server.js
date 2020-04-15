@@ -3,6 +3,10 @@ const Students = require("./Models/studentModel");
 //topics files
 var login = require('./services/login');
 var studentProfile = require("./services/studentProfile");
+var companyProfile = require("./services/companyProfile");
+const companyJobsEvents = require("./services/companyJobsEvents");
+const studentJobsEvents = require('./services/studentJobsEvents');
+const students = require("./services/students");
 const mongoose = require('mongoose');
 const { mongoDB } = require("./Utils/config");
 
@@ -42,7 +46,7 @@ console.log("collections- ", names);
 function handleTopicRequest(topic_name) {
     var consumer = connection.getConsumer(topic_name);
     var producer = connection.getProducer();
-    console.log('server is running ');
+    // console.log('server is running ');
     consumer.on('message', function (message) {
         console.log('message received for ' + topic_name);
         // console.log(JSON.stringify(message.value));
@@ -56,6 +60,26 @@ function handleTopicRequest(topic_name) {
                 })
             case "student_profile":
                 studentProfile.serve(data.data, function (err, res) {
+                    response(data, res, producer);
+                    return;
+                })
+            case "company_profile":
+                companyProfile.serve(data.data, function (err, res) {
+                    response(data, res, producer);
+                    return;
+                })
+            case "company_jobs_events":
+                companyJobsEvents.serve(data.data, function (err, res) {
+                    response(data, res, producer);
+                    return;
+                })
+            case "student_jobs_events":
+                studentJobsEvents.serve(data.data, function (err, res) {
+                    response(data, res, producer);
+                    return;
+                })
+            case "students":
+                students.serve(data.data, function (err, res) {
                     response(data, res, producer);
                     return;
                 })
@@ -86,4 +110,7 @@ function response(data, res, producer) {
 //second argument is a function that will handle this topic request
 handleTopicRequest("login");
 handleTopicRequest("student_profile");
-
+handleTopicRequest("company_profile");
+handleTopicRequest("company_jobs_events");
+handleTopicRequest("student_jobs_events")
+handleTopicRequest("students");

@@ -39,8 +39,8 @@ class SingleEducationDetails extends Component {
         })
     }
     handleSave = async (e) => {
-	e.preventDefault();        
-	let data = {
+        e.preventDefault();
+        let data = {
             SID: cookie.load("SID"),
             _id: this.state._id,
             school: document.getElementById("school").value,
@@ -51,7 +51,10 @@ class SingleEducationDetails extends Component {
             gpa: document.getElementById("gpa").value
         }
         await this.props.studentUpdateEducationDetails(data);
-	
+        this.setState({
+            editFlag: false
+        })
+
     }
     render() {
         let singleEducation = null;

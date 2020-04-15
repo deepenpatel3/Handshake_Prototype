@@ -1,147 +1,185 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { Dropdown } from 'react-bootstrap';
+import { studentGetJobs } from '../../js/actions/jobsAction';
+import { connect } from "react-redux";
+import cookie from "react-cookies";
+import { backendURL } from "../../Config";
+import { Link } from "react-router-dom";
 
 class Postings extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            jobArray: [],
+            pageNO: 1,
+            filters: [],
+            titleOrCompany: "",
+            location: "",
+            sort: "",
+
+            appliedFlag: false,
             firstJob: {},
             fullTimeFlag: false,
             partTimeFlag: false,
             onCampusFlag: false,
             internshipFlag: false,
-            locationFlag: false,
-            searchFlag: false,
-            applyFlag: false,
-            filteredJobs: []
+            // locationFlag: false,
+            // searchFlag: false,
+            applyFlag: false
+            // filteredJobs: []
         }
-
-        this.showJob = this.showJob.bind(this);
-        this.handleFullTime = this.handleFullTime.bind(this);
-        this.handleReset = this.handleReset.bind(this);
-        this.handlePartTime = this.handlePartTime.bind(this);
-        this.handleOnCampus = this.handleOnCampus.bind(this);
-        this.handleInternship = this.handleInternship.bind(this);
-        this.handleLocation = this.handleLocation.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-
+        this.showJob = this.showJob.bind(this);
+        this.getJobs = this.getJobs.bind(this);
+        this.next = this.next.bind(this);
+        this.previous = this.previous.bind(this);
+        this.changeStatus = this.changeStatus.bind(this);
+        this.handleReset = this.handleReset.bind(this);
+        this.createFilter = this.createFilter.bind(this);
         this.handleApply = this.handleApply.bind(this);
+        this.sort = this.sort.bind(this);
+    }
+    componentDidUpdate(prevProps, nextState) {
+        if (prevProps.jobs !== this.props.jobs) {
+            if (this.props.jobs.length > 0) {
+                this.setState({
+                    firstJob: this.props.jobs[0]
+                }, () => {
+                    if (!this.state.firstJob.appliedStudents.length) {
+                        this.setState({ appliedFlag: false }, () => { document.getElementById("apply").disabled = false })
+                    }
+                    else {
+                        this.state.firstJob.appliedStudents.forEach(student => {
+                            if (student._id === cookie.load("SID")) {
+                                // console.log("student--", student)
+                                this.setState({ appliedFlag: true }, () => { document.getElementById("apply").disabled = true })
+                            }
+                            else {
+                                // console.log("insde else")
+                                this.setState({ appliedFlag: false }, () => { document.getElementById("apply").disabled = false })
+                            }
+                        })
+                    }
+                })
+            } else {
+                this.setState({ firstJob: {} })
+            }
+        }
     }
     componentDidMount() {
-        axios.get('http://localhost:3001/getJobs')
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    jobArray: this.state.jobArray.concat(response.data),
-                })
-                this.setState({
-                    firstJob: (this.state.jobArray)[0]
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.getJobs();
+    }
+    getJobs = () => {
+        let data = {
+            pageNO: this.state.pageNO,
+            filter: this.state.filters,
+            titleOrCompany: this.state.titleOrCompany,
+            location: this.state.location,
+            sort: this.state.sort,
+        }
+        this.props.studentGetJobs(data);
     }
     showJob = (job) => {
         this.setState({
             firstJob: job
+        }, () => {
+            if (!this.state.firstJob.appliedStudents.length) {
+                this.setState({ appliedFlag: false }, () => { document.getElementById("apply").disabled = false })
+            }
+            else {
+                this.state.firstJob.appliedStudents.forEach(student => {
+                    if (student._id === cookie.load("SID")) {
+                        // console.log("student--", student)
+                        this.setState({ appliedFlag: true }, () => { document.getElementById("apply").disabled = true })
+                    }
+                    else {
+                        // console.log("insde else")
+                        this.setState({ appliedFlag: false }, () => { document.getElementById("apply").disabled = false })
+                    }
+                })
+            }
         })
-        // this.state.postingDate = this.state.postingDate.slice(0, 9);
-        // console.log('postig date', this.state.postingDate);
     }
-    handleFullTime = (e) => {
-        if (!this.state.fullTimeFlag) {
-            this.setState({
-                fullTimeFlag: true,
-                filteredJobs: this.state.filteredJobs.concat(this.state.jobArray.filter(job => { return (job.category === 'Full Time') }))
-            })
-        } else {
-            this.setState({
-                fullTimeFlag: false,
-                filteredJobs: this.state.filteredJobs.filter(job => { return (job.category !== 'Full Time') })
-            })
-        }
+    next = () => {
+        this.setState({
+            pageNO: this.state.pageNO + 1
+        }, () => this.getJobs())
     }
-    handlePartTime = () => {
-        if (!this.state.partTimeFlag) {
-            this.setState({
-                partTimeFlag: true,
-                filteredJobs: this.state.filteredJobs.concat(this.state.jobArray.filter(job => { return (job.category === 'Part Time') }))
-            })
-        } else {
-            this.setState({
-                partTimeFlag: false,
-                filteredJobs: this.state.filteredJobs.filter(job => { return (job.category != 'Part Time') })
-            })
-        }
-
-    }
-    handleOnCampus = () => {
-        if (!this.state.onCampusFlag) {
-            this.setState({
-                onCampusFlag: true,
-                filteredJobs: this.state.filteredJobs.concat(this.state.jobArray.filter(job => { return (job.category === 'On Campus') }))
-            })
-        } else {
-            this.setState({
-                onCampusFlag: false,
-                filteredJobs: this.state.filteredJobs.filter(job => { return (job.category != 'On Campus') })
-            })
-        }
-    }
-    handleInternship = () => {
-        if (!this.state.internshipFlag) {
-            this.setState({
-                internshipFlag: true,
-                filteredJobs: this.state.filteredJobs.concat(this.state.jobArray.filter(job => { return (job.category === 'Internship') }))
-            })
-        } else {
-            this.setState({
-                internshipFlag: false,
-                filteredJobs: this.state.filteredJobs.filter(job => { return (job.category != 'Internship') })
-            })
-        }
+    previous = () => {
+        this.setState({
+            pageNO: this.state.pageNO - 1
+        }, () => this.getJobs())
     }
     handleReset = () => {
         this.setState({
             // filter: [],
-            filteredJobs: [],
-            fullTimeFlag: false,
-            partTimeFlag: false,
-            onCampusFlag: false,
-            internshipFlag: false,
+            // filteredJobs: [],
+            // fullTimeFlag: false,
+            // partTimeFlag: false,
+            // onCampusFlag: false,
+            // internshipFlag: false,
             locationFlag: false,
             searchFlag: false
         })
     }
-    handleSearch = (e) => {
-        let temp = this.state.jobArray;
-        if (e.target.value) {
-            this.setState({
-                searchFlag: true,
-                filteredJobs: temp.filter(job => { return ((job.company.replace(/\s/g, '').toLowerCase().includes(e.target.value.replace(/\s/g, '').toLowerCase())) || (job.title.replace(/\s/g, '').toLowerCase().includes(e.target.value.replace(/\s/g, '').toLowerCase()))) })
-            })
-        } else {
-            this.setState({
-                searchFlag: false
-            })
+    changeStatus = (status) => {
+        switch (status) {
+            case "full_time":
+                this.setState({
+                    fullTimeFlag: !this.state.fullTimeFlag
+                }, () => {
+                    this.createFilter();
+                })
+                break;
+            case "part_time":
+                this.setState({
+                    partTimeFlag: !this.state.partTimeFlag
+                }, () => {
+                    this.createFilter();
+                })
+                break;
+            case "internship":
+                this.setState({
+                    internshipFlag: !this.state.internshipFlag
+                }, () => {
+                    this.createFilter();
+                })
+                break;
+            case "on_campus":
+                this.setState({
+                    onCampusFlag: !this.state.onCampusFlag
+                }, () => {
+                    this.createFilter();
+                })
+                break;
         }
     }
-    handleLocation = (e) => {
-        if (!this.state.locationFlag) {
-            this.setState({
-                locationFlag: true,
-                filteredJobs: this.state.filteredJobs.concat(this.state.jobArray.filter(job => { return (job.location === e.target.id) }))
-            })
-        } else {
-            this.setState({
-                locationFlag: false,
-                filteredJobs: this.state.filteredJobs.filter(job => { return (job.location != e.target.id) })
-            })
+    createFilter = () => {
+        let filter = [];
+        if (this.state.fullTimeFlag) {
+            filter.push("full_time");
         }
+        if (this.state.partTimeFlag) {
+            filter.push("part_time");
+        }
+        if (this.state.internshipFlag) {
+            filter.push("internship");
+        }
+        if (this.state.onCampusFlag) {
+            filter.push("on_campus");
+        }
+        this.setState({
+            filters: filter
+        }, () => { this.getJobs() })
+    }
+
+    handleSearch = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        }, () => { this.getJobs() })
+    }
+    sort = (e) => {
+        this.setState({
+            sort: e.target.value
+        }, () => this.getJobs())
     }
     handleApply = () => {
         this.setState({
@@ -149,97 +187,68 @@ class Postings extends Component {
         })
     }
     render() {
-        var jobelement = null, DropDownMenu = null, uniqueCities = [];
-        console.log('filtered jobs', this.state.filteredJobs);
-        // console.log('full timeflag:', this.state.fullTimeFlag, 'part time flag:', this.state.partTimeFlag, 'on campus flag:', this.state.onCampusFlag, 'internship flag:', this.state.internshipFlag);
-        if ((this.state.fullTimeFlag || this.state.partTimeFlag || this.state.onCampusFlag || this.state.internshipFlag || this.state.locationFlag || this.state.searchFlag)) {
-            jobelement = this.state.filteredJobs.map(job => {
-                return (
-                    <div className="container">
-                        <table className="table">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <button id={job.ID} onClick={() => this.showJob(job)} className="btn">
-                                            <ul style={{ textAlign: 'left' }}>
-                                                <li>{job.title}</li>
-                                                <li>{job.company}</li>
-                                                <li>At {job.location}</li>
-                                                <li>{job.category}</li>
-                                            </ul>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                )
-            })
-        }
-        else {
-            jobelement = this.state.jobArray.map(job => {
-                return (
-                    <div className="container">
-                        <table className="table">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <button onClick={() => this.showJob(job)} className="btn">
-                                            <ul style={{ textAlign: 'left' }}>
-                                                <li>{job.title}</li>
-                                                <li>{job.company}</li>
-                                                <li>At {job.location}</li>
-                                                <li>{job.category}</li>
-                                            </ul>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                )
-            })
+        // console.log("applied flag----- ", this.state.appliedFlag)
+        var jobelement = null, alertElement = null;
 
-        }
-
-        this.state.jobArray.forEach(job => { return (uniqueCities.indexOf(job.location) === -1 ? uniqueCities.push(job.location) : null) })
-        DropDownMenu = uniqueCities.map(location => {
+        jobelement = this.props.jobs.map(job => {
             return (
-                <Dropdown.Item onClick={this.handleLocation} id={location}>{location}</Dropdown.Item>
+                <div className="container">
+                    <table className="table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <button onClick={() => this.showJob(job)} className="btn">
+                                        <ul style={{ textAlign: 'left' }}>
+                                            <li>{job.title}</li>
+                                            <li>{job.companyID.companyName}</li>
+                                            <li>At {job.location}</li>
+                                            <li>{job.category}</li>
+                                            <li>Posted On: {new Date(job.postingDate).getMonth() + 1}-{new Date(job.postingDate).getDate()}-{new Date(job.postingDate).getFullYear()}</li>
+                                            <li>Application Deadline: {new Date(job.deadline).getMonth() + 1}-{new Date(job.deadline).getDate()}-{new Date(job.deadline).getFullYear()}</li>
+                                        </ul>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             )
         })
-        console.log('first job', this.state.firstJob)
+
+        // console.log('first job', this.state.firstJob)
         return (
             <div className='container'>
                 <div className='row'>
                     <div className='col'>
                         <div style={{ marginTop: '15px', marginBottom: '15px' }} class="form-inline">
-                            <input style={{ width: '100%' }} type="search" onChange={this.handleSearch} class="form-control" placeholder="Search jobs by name..." />
+                            <input style={{ width: '50%' }} name="titleOrCompany" onChange={this.handleSearch} class="form-control" placeholder="Search jobs by Title or Company Name..." />
+                            <input style={{ width: '50%' }} name="location" onChange={this.handleSearch} class="form-control" placeholder="Filter jobs by city..." />
                         </div>
                     </div>
                 </div>
                 <div className='row' style={{ marginBottom: '15px' }}>
-                    <div className="col-1" ><button id='Full Time' onClick={this.handleFullTime} className="btn btn-default btn-xs">Full Time</button></div>
-                    <div className='col-1'><button id='Part Time' onClick={this.handlePartTime} className="btn btn-default btn-xs">Part Time</button></div>
-                    <div className='col-1'><button id='On Campus' onClick={this.handleOnCampus} className="btn btn-default btn-xs">On Campus</button></div>
-                    <div className='col-1'><button id='Internship' onClick={this.handleInternship} className="btn btn-default btn-xs">Internship</button></div>
-                    <Dropdown>
-                        <Dropdown.Toggle variant="default" id="dropdown-basic">
-                            Location
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu>
-                            <div class="btn-group-toggle" data-toggle="buttons">
-                                {DropDownMenu}
-                            </div>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <div className='col-1'><button onClick={this.handleReset} className="btn btn-default btn-xs">Reset</button></div>
+                    <div className="col" ><button className={this.state.fullTimeFlag ? "btn btn-primary btn-xs" : "btn btn-default btn-xs"} name='full_time' onClick={() => this.changeStatus("full_time")} >Full Time</button></div>
+                    <div className='col'><button name='part_time' onClick={() => this.changeStatus("part_time")} className={this.state.partTimeFlag ? "btn btn-primary btn-xs" : "btn btn-default btn-xs"}>Part Time</button></div>
+                    <div className='col'><button name='on_campus' onClick={() => this.changeStatus("on_campus")} className={this.state.onCampusFlag ? "btn btn-primary btn-xs" : "btn btn-default btn-xs"}>On Campus</button></div>
+                    <div className='col'><button name='internship' onClick={() => this.changeStatus("internship")} className={this.state.internshipFlag ? "btn btn-primary btn-xs" : "btn btn-default btn-xs"}>Internship</button></div>
+                    <div className='col'><button onClick={this.handleReset} className="btn btn-default btn-xs">Reset</button></div>
+                    <select name="sort" onChange={this.sort} defaultValue="">
+                        <option value=""></option>
+                        <option value="postingDate"> Posting Date - Increasing</option>
+                        <option value="-postingDate"> Posting Date - Decreasing</option>
+                        <option value="deadline"> Deadline - Increasing</option>
+                        <option value="-deadline"> Deadline - Decreasing</option>
+                        <option value="location"> Location - A -> Z</option>
+                        <option value="-location"> Location - Z -> A</option>
+                    </select>
                 </div>
                 <div className="container">
                     <div className="row">
                         <div className="col-4">
                             {jobelement}
+                            {/* {alertElement} */}
+                            <button style={this.state.pageNO === 1 ? { display: "none" } : null} onClick={this.previous}>Back</button>
+                            <button style={{ marginLeft: "250px" }} onClick={this.next}>Next</button>
                         </div>
                         <div className="col">
                             <div className="container">
@@ -250,7 +259,13 @@ class Postings extends Component {
                                 </div>
                                 <div className="row">
                                     <div className="col">
-                                        <p><a href="#">{this.state.firstJob.company}</a></p>
+                                        <p><Link to={{
+                                            pathname: "/otherCompany",
+                                            state: {
+                                                companyID: this.state.firstJob.companyID,
+                                                backPath: '/jobs'
+                                            }
+                                        }}> {this.state.firstJob.companyName}</Link></p>
                                     </div>
                                 </div>
                                 <div className="row">
@@ -273,22 +288,17 @@ class Postings extends Component {
                                     </div>
                                     <div className="col-1">
                                         {this.state.applyFlag ?
-                                            <form action='http://localhost:3001/apply' method='post' encType='multipart/form-data'>
-                                                <input name="SID" value={localStorage.getItem("ID")}></input>
-                                                <input style={{ display: 'none' }} type="text" name='ID' value={this.state.firstJob.ID}></input>
+                                            <form action={backendURL + '/apply'} method='post' encType='multipart/form-data'>
+                                                <input style={{ display: "none" }} name="SID" value={cookie.load("SID")}></input>
+                                                <input style={{ display: 'none' }} name='ID' value={this.state.firstJob._id}></input>
                                                 <input type='file' name='resume'></input>
                                                 <button type='submit'>Apply</button>
-                                            </form> : <button className="btn btn-primary btn-xs" onClick={this.handleApply}>Apply</button>}
+                                            </form> : <button id="apply" className="btn btn-primary btn-xs" onClick={this.handleApply}>Apply</button>}
                                     </div>
                                 </div>
                                 <div className="row">
                                     <div className="col">
                                         <p>Job Description:  {this.state.firstJob.description}</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col">
-                                        <p>Application Status:  {this.state.firstJob.status}</p>
                                     </div>
                                 </div>
                             </div>
@@ -300,5 +310,9 @@ class Postings extends Component {
         );
     }
 }
-
-export default Postings;
+function mapStateToProps(state) {
+    return {
+        jobs: state.StudentJob.jobs
+    }
+}
+export default connect(mapStateToProps, { studentGetJobs })(Postings);

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Redirect, Link } from 'react-router-dom';
 import { studentSignup } from '../../js/actions/loginAction';
 import { connect } from 'react-redux';
-import cookie from 'react-cookies'
 
 class StudentSignUp extends Component {
     constructor(props) {
@@ -21,12 +20,9 @@ class StudentSignUp extends Component {
         this.props.studentSignup(data);
     }
     render() {
-        let redirectVar = null, alertElement = null;
-        if (cookie.load("SID")) {
-            redirectVar = <Redirect to='/profile' />
-        }
-        if (this.props.isSignedUp != null && !this.props.isSignedUp) {
-            alertElement = <p className='alert alert-danger'>Email Already registered</p>
+        let redirectVar = null;
+        if (this.props.isStudentSignedUp === true) {
+            redirectVar = <Redirect to='/studentSignIn' />
         }
         return (
             <div className='container'>
@@ -75,7 +71,6 @@ class StudentSignUp extends Component {
                         required /><br />
                     <button className='btn btn-primary btn-xs' type="submit">Sign Up</button>
                     <Link style={{ marginLeft: '10px' }} className='btn btn-primary btn-xs' to='/studentSignIn'>Already have an account?</Link><br /><br />
-                    {alertElement}
                 </form>
             </div>
         );
@@ -84,7 +79,7 @@ class StudentSignUp extends Component {
 
 function mapStateToProps(state) {
     return {
-        isSignedUp: state.Login.isSignedUp
+        isStudentSignedUp: state.Login.isStudentSignedUp
     };
 }
 export default connect(mapStateToProps, { studentSignup })(StudentSignUp);

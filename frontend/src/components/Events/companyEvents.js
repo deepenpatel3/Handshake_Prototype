@@ -1,40 +1,53 @@
 import React, { Component } from 'react';
 import CompanyNavbar from '../Navbar/companyNavbar';
-import axios from 'axios';
+import { connect } from "react-redux";
+import { companyGetEvents, companyPostEvent } from '../../js/actions/eventAction';
 import cookie from "react-cookies";
 import { Link, Redirect } from "react-router-dom";
-axios.defaults.withCredentials = true;
 
 class CompanyEvents extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            eventArray: [],
+            pageNO: 1,
             firstEvent: {},
-            registeredStudents: [],
             addEventFlag: false,
             studentsFlag: false
         }
+        this.getEvents = this.getEvents.bind(this);
         this.addEvent = this.addEvent.bind(this);
         this.showEvent = this.showEvent.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.handlePost = this.handlePost.bind(this);
         this.getStudents = this.getStudents.bind(this);
+        this.next = this.next.bind(this);
+        this.previous = this.previous.bind(this);
     }
     componentDidMount() {
-        axios.get('http://localhost:3001/getEventOfCompany', { params: { CID: localStorage.getItem("CID") } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
+        this.getEvents();
+    }
+    componentDidUpdate(prevProps, nextState) {
+        if (prevProps.events !== this.props.events) {
+            if (this.props.events.length > 0) {
                 this.setState({
-                    eventArray: response.data
+                    firstEvent: this.props.events[0]
                 })
-                this.setState({
-                    firstEvent: (this.state.eventArray)[0]
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+            }
+        }
+    }
+    getEvents = () => {
+        let data = { pageNO: this.state.pageNO, CID: cookie.load("CID") }
+        this.props.companyGetEvents(data);
+    }
+    next = () => {
+        this.setState({
+            pageNO: this.state.pageNO + 1
+        }, () => this.getEvents())
+    }
+    previous = () => {
+        this.setState({
+            pageNO: this.state.pageNO - 1
+        }, () => this.getEvents())
     }
     addEvent = () => {
         this.setState({
@@ -51,10 +64,11 @@ class CompanyEvents extends Component {
             addEventFlag: false
         })
     }
-    handlePost = () => {
+    handlePost = async () => {
+        // .preventDefault();
         let data = {
-            CID: localStorage.getItem("CID"),
-            company: localStorage.getItem("companyName"),
+            CID: cookie.load("CID"),
+            companyName: cookie.load("company"),
             name: document.getElementById('eventName').value,
             location: document.getElementById('location').value,
             description: document.getElementById('description').value,
@@ -62,49 +76,32 @@ class CompanyEvents extends Component {
             date: document.getElementById('date').value,
             eligibility: document.getElementById('eligibility').value
         }
-        axios.post('http://localhost:3001/postEvent', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    addEventFlag: false
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        await this.props.companyPostEvent(data);
+        this.getEvents();
     }
     getStudents = () => {
-        let ID = this.state.firstEvent.ID;
-        axios.get('http://localhost:3001/getRegisteredStudents', { params: { ID: ID } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('registered students', response.data);
-                this.setState({
-                    registeredStudents: response.data,
-                    studentsFlag: true
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+        this.setState({
+            studentsFlag: true
+        })
     }
     render() {
+        console.log("page no--", this.state.pageNO)
         let eventOrForm = null, studentsElement = null, eventElement = null, redirectVar = null, errorElement = null;
-        // if (!cookie.load('CID')) {
-        //     redirectVar = <Redirect to="/companySignIn" />;
-        // }
-        if (this.state.eventArray.length > 0) {
+        if (!cookie.load('CID')) {
+            redirectVar = <Redirect to="/companySignIn" />;
+        }
+        if (this.props.events.length > 0) {
             if (this.state.studentsFlag) {
-                studentsElement = this.state.registeredStudents.map(student => {
+                studentsElement = this.state.firstEvent.registeredStudents.map(student => {
                     return (
                         <ul>
                             <li><Link to={{
                                 pathname: "/otherStudent",
                                 state: {
-                                    student: student,
+                                    student: student._id,
                                     path: '/companyEvents'
                                 }
-                            }} style={{ color: 'black' }}>{student.name}</Link></li>
+                            }} style={{ color: 'black' }}>{student._id.name}</Link></li>
                         </ul>
                     )
                 })
@@ -115,14 +112,14 @@ class CompanyEvents extends Component {
             if (this.state.addEventFlag) {
                 eventOrForm =
                     <div>
-                        <form className="form-group">
+                        <form className="form-group" onSubmit={this.handlePost}>
                             <input className="form-control" type='text' id='eventName' placeholder='Event Title' required autoFocus />
                             <input className="form-control" type='text' id='location' placeholder='Venue' required />
                             <input className="form-control" type='text' id='description' placeholder='What is the event about?...' required />
                             <input className="form-control" type='time' id='time' placeholder='Time' required />
                             <input className="form-control" type='date' id='date' placeholder='Date' required />
-                            <input className="form-control" type='text' id='eligibility' placeholder='Eligibility' required />
-                            <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' onClick={this.handlePost}>Post</button>
+                            <input className="form-control" type='text' id='eligibility' placeholder='Eligibility' />
+                            <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' >Post</button>
                             <button style={{ marginTop: '10px' }} className='btn btn-default btn-xs' onClick={this.handleCancel}>Cancel</button>
                         </form>
                     </div>
@@ -140,13 +137,13 @@ class CompanyEvents extends Component {
                                 <p>{this.state.firstEvent.location}</p>
                             </div>
                             <div className="col">
-                                <p>{this.state.firstEvent.date}</p>
+                                <p>Date: {new Date(this.state.firstEvent.date).getMonth() + 1}-{new Date(this.state.firstEvent.date).getDate()}-{new Date(this.state.firstEvent.date).getFullYear()}</p>
                             </div>
                             <div className="col">
-                                <p>{this.state.firstEvent.time}</p>
+                                <p>Time: {this.state.firstEvent.time}</p>
                             </div>
                             <div className="col">
-                                <p>{this.state.firstEvent.eligibility}</p>
+                                <p>Eligibility: {this.state.firstEvent.eligibility}</p>
                             </div>
                         </div>
                         <div className="row">
@@ -161,7 +158,7 @@ class CompanyEvents extends Component {
                         </div>
                     </div>
             }
-            eventElement = this.state.eventArray.map(event => {
+            eventElement = this.props.events.map(event => {
                 return (
                     <div className="container">
                         <table className="table">
@@ -172,6 +169,7 @@ class CompanyEvents extends Component {
                                             <ul style={{ textAlign: 'left' }}>
                                                 <li>{event.name}</li>
                                                 <li>{event.date}</li>
+                                                <li>{event.companyName}</li>
                                             </ul>
                                         </button>
                                     </td>
@@ -209,6 +207,8 @@ class CompanyEvents extends Component {
                         <div className='col-4'>
                             {eventElement}
                             {errorElement}
+                            <button style={this.state.pageNO === 1 ? { display: "none" } : null} onClick={this.previous}>Back</button>
+                            <button style={{ marginLeft: "250px" }} onClick={this.next}>Next</button>
                         </div>
                         <div className='col-8'>
                             {eventOrForm}
@@ -219,5 +219,9 @@ class CompanyEvents extends Component {
         );
     }
 }
-
-export default CompanyEvents;
+function mapStateToProps(state) {
+    return {
+        events: state.CompanyEvent.events
+    }
+}
+export default connect(mapStateToProps, { companyGetEvents, companyPostEvent })(CompanyEvents);

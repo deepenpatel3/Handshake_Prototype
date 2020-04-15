@@ -28,6 +28,11 @@ class Navbar extends Component {
                         </div>
                         <ul className="nav navbar-nav">
                             <li>
+                                <Link to="/messages"><strong>Messages</strong></Link>
+                            </li>
+                        </ul>
+                        <ul className="nav navbar-nav">
+                            <li>
                                 <Link to="/jobs"><strong>Jobs</strong></Link>
                             </li>
                         </ul>

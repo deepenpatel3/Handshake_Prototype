@@ -1,51 +1,52 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { connect } from "react-redux";
+import { studentGetRegisteredEvents } from "../../js/actions/eventAction";
+import cookie from "react-cookies";
 
 class EventRegistered extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            registeredEvents: []
-        }
+
     }
     componentDidMount() {
-        axios.get('http://localhost:3001/getRegisteredEvents', { params: { SID: localStorage.getItem("ID") } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    registeredEvents: response.data
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+        let data = { SID: cookie.load("SID") }
+        this.props.studentGetRegisteredEvents(data);
     }
     render() {
-        let registeredEventsElement = this.state.registeredEvents.map(event => {
-            return (
-                <tr>
-                    <td style={{ textAlign: 'center' }}>
-                        <h4>{event.name}</h4>
-                        <p>By {event.company}</p>
-                        <p>Time: {event.time}</p>
-                        <p>Date: {event.date}</p>
-                        <p>At {event.location}</p>
-                        <p>Description: {event.description}</p>
-                    </td>
-                </tr>
-            )
-        })
+        let registeredEventsElement = null, errorElement = null;
+        if (this.props.registeredEvents.length > 0) {
+            registeredEventsElement = this.props.registeredEvents.map(event => {
+                return (
+                    <tr>
+                        <td style={{ textAlign: 'center' }}>
+                            <h4>{event.name}</h4>
+                            <p>By {event.company}</p>
+                            <p>Time: {event.time}</p>
+                            <p>Date: {event.date}</p>
+                            <p>At {event.location}</p>
+                            <p>Description: {event.description}</p>
+                        </td>
+                    </tr>
+                )
+            })
+        } else {
+            errorElement = <h3>No events Registered.</h3>
+        }
         return (
             <div className="container">
                 <table style={{ marginTop: '15px' }} className="table">
                     <tbody>
                         {registeredEventsElement}
+                        {errorElement}
                     </tbody>
                 </table>
             </div>
         );
     }
 }
-
-export default EventRegistered;
+function mapStateToProps(state) {
+    return {
+        registeredEvents: state.StudentEvent.registeredEvents
+    }
+}
+export default connect(mapStateToProps, { studentGetRegisteredEvents })(EventRegistered);

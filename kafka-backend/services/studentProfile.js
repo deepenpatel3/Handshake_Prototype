@@ -3,7 +3,7 @@ const Students = require('../Models/studentModel');
 exports.serve = function serve(msg, callback) {
     console.log('inside kafka backend student_profile service');
     console.log("msg", msg);
-    console.log("In Service path:", msg.path);
+    // console.log("In Service path:", msg.path);
     switch (msg.path) {
         case "get_basic_details":
             get_basic_details(msg, callback);
@@ -15,8 +15,8 @@ exports.serve = function serve(msg, callback) {
         case "get_contact_info":
             get_contact_info(msg, callback);
             break;
-        case "update_contact_info":
-            update_contact_info(msg, callback);
+        case "student_update_contact_info":
+            student_update_contact_info(msg, callback);
             break;
         case "get_career_objective":
             get_career_objective(msg, callback);
@@ -71,13 +71,14 @@ function get_basic_details(msg, callback) {
             callback(null, { success: false })
         }
         else {
+            console.log("found student's basic details");
             callback(null, { success: true, name: student.name, school: student.school, city: student.city });
         }
     })
 }
 
 function update_basic_details(msg, callback) {
-    console.log("student id- ", msg.body);
+    console.log("student id- ", msg.body.SID);
 
     Students.findByIdAndUpdate({ _id: msg.body.SID }, {
         name: msg.body.name,
@@ -90,7 +91,7 @@ function update_basic_details(msg, callback) {
         }
         else {
             console.log('updated successfully');
-            console.log("student", student)
+            // console.log("student", student)
             callback(null, { name: student.name, city: student.city, school: student.school });
         }
     })
@@ -108,7 +109,7 @@ function get_contact_info(msg, callback) {
     })
 }
 
-function update_contact_info(msg, callback) {
+function student_update_contact_info(msg, callback) {
     Students.findByIdAndUpdate({ _id: msg.body.SID }, {
         email: msg.body.email,
         phone: msg.body.phone
@@ -294,7 +295,7 @@ function get_experience(msg, callback) {
             callback(null, null)
         }
         else {
-            console.log("inside GET EXPERIENCE KAFKA, STUDENT- ", student)
+            // console.log("inside GET EXPERIENCE KAFKA, STUDENT- ", student)
             callback(null, { experienceDetails: student.experienceDetails });
         }
     })

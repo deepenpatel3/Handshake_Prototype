@@ -7,13 +7,13 @@ var session = require("express-session");
 var cookieParser = require("cookie-parser");
 var cors = require("cors");
 const bcrypt = require('bcrypt');
-var kafka = require('./kafka/client');
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 var multer = require('multer');
-const mysql = require('mysql2/promise');
 var path = require('path');
 const Students = require("./src/Models/studentModel");
+const Company = require("./src/Models/companyModel");
+const Jobs = require("./src/Models/jobModel");
 
 app.use(cors({ origin: frontendURL, credentials: true }));
 
@@ -109,10 +109,24 @@ console.log("collections- ", names);
 const studentAccount = require("./src/routes/student/Account");
 const companyAccount = require("./src/routes/company/Account");
 const studentProfile = require("./src/routes/student/Profile");
+const companyProfile = require("./src/routes/company/Profile");
+const companyJobs = require("./src/routes/company/Jobs");
+const studentJobs = require("./src/routes/student/Jobs");
+const companyEvents = require("./src/routes/company/Events");
+const studentEvents = require("./src/routes/student/Events");
+const studentStudents = require("./src/routes/student/Student");
+const studentMessages = require("./src/routes/student/Message");
 
 app.use("/company/account", companyAccount);
 app.use("/student/account", studentAccount);
 app.use("/student/profile", studentProfile);
+app.use("/company/profile", companyProfile);
+app.use("/company/jobs", companyJobs);
+app.use("/student/jobs", studentJobs);
+app.use("/company/events", companyEvents);
+app.use("/student/events", studentEvents);
+app.use("/student/students", studentStudents);
+app.use("/student/message", studentMessages);
 
 app.post('/updateProfilePic', upload.single('profilePic'), function (req, res) {
     console.log("Inside update profile picture");
@@ -135,9 +149,35 @@ app.post('/updateProfilePic', upload.single('profilePic'), function (req, res) {
             }
         })
         .catch(error => {
-            console.log('update profile picture error', error)
+            console.log('update student profile picture error', error)
         })
 });
+
+app.post('/updateCompanyProfilePic', upload.single('profilePic'), function (req, res) {
+    console.log("Inside update company profile picture");
+    var host = req.hostname;
+    console.log("Hostname", host)
+    console.log("File", req.file)
+    var imagepath = req.protocol + "://" + host + ':3001/' + req.file.path;
+    console.log('imagepath- ', imagepath);
+    console.log('Cid', req.body.CID)
+
+    Company.findByIdAndUpdate({ _id: req.body.CID }, { profilePic: imagepath }, { new: true })
+        .then(company => {
+            if (company) {
+                console.log('company:- ', company);
+                res.redirect(frontendURL + '/companyProfile');
+            }
+            else {
+                console.log('wrong company id')
+                res.status(401).end("wrong company id")
+            }
+        })
+        .catch(error => {
+            console.log('update company profile picture error', error)
+        })
+});
+
 app.get('/getProfilePic', function (req, res) {
     // console.log('req body', req.query)
     Students.findById({ _id: req.query.SID })
@@ -151,7 +191,24 @@ app.get('/getProfilePic', function (req, res) {
             }
         })
         .catch(error => {
-            console.log('update profile picture error', error)
+            console.log(' get student profile picture error', error)
+        })
+});
+
+app.get('/getCompanyProfilePic', function (req, res) {
+    // console.log('req body', req.query)
+    Company.findById({ _id: req.query.CID })
+        .then(company => {
+            if (company) {
+                res.status(200).end(company.profilePic);
+            }
+            else {
+                console.log('wrong student id')
+                res.status(401).end("wrong student id")
+            }
+        })
+        .catch(error => {
+            console.log('get company profile picture error', error)
         })
 });
 
@@ -280,27 +337,23 @@ app.post("/addSkill", function (req, res) {
 })
 
 app.post('/apply', upload.single('resume'), function (req, res) {
-    console.log("apply job api")
+    console.log("inside apply job api")
     console.log('req body', req.body)
     let SID = req.body.SID;
     var host = req.hostname;
     console.log("Hostname", host)
     console.log("File", req.file)
     var imagepath = req.protocol + "://" + host + ':3001/' + req.file.path;
-    let sql = 'Insert into JobRegistry (JID, SID, resume, status) values (?,?,?,?)';
     console.log('imagepath', imagepath);
-    async function updateData() {
 
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [rows, fields] = await connection.execute(sql, [req.body.ID, SID, imagepath, 'Pending']);
-        await connection.end();
-    }
-    updateData()
-        .then((r) => {
-            console.log("uploaded resume successfully");
-        }).catch(e => {
-            console.log(e)
-            console.log('error aavi')
+    Jobs.findByIdAndUpdate({ _id: req.body.ID },
+        { $push: { appliedStudents: { _id: req.body.SID, status: "Pending", resume: imagepath } } }, (err, result) => {
+            if (err) {
+                console.log("job apply error- ", err)
+            }
+            else {
+                res.redirect(frontendURL + "/jobs");
+            }
         })
 });
 
@@ -365,47 +418,6 @@ app.post("/changeAppStatus", function (req, res) {
         })
 })
 
-app.get('/getEvents', function (req, res) {
-    console.log('inside get get events');
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('select * from Event where ID NOT IN (select EID from EventRegistry where SID=?) ORDER BY date ASC', [req.query.ID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the events', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get job error', e);
-    })
-})
-
-app.post("/registerEvent", function (req, res) {
-    console.log('inside post register event');
-    console.log("req body", req.body);
-
-    async function register() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [rows, fields] = await connection.execute('INSERT INTO `EventRegistry` (EID, SID) VALUES (?,?)', [req.body.ID, req.query.SID]);
-        await connection.end();
-    }
-
-    register()
-        .then(() => {
-            console.log('registered successfully');
-            res.end();
-        }).catch(e => {
-            console.log(e)
-            console.log('error aavi')
-        })
-})
-
 app.post("/postJob", function (req, res) {
     console.log('inside post post job');
 
@@ -424,87 +436,6 @@ app.post("/postJob", function (req, res) {
             console.log(e)
             console.log('error aavi')
         })
-})
-
-app.get('/getRegisteredEvents', function (req, res) {
-    console.log('inside get get registered events');
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('SELECT Event.ID, Event.name, Event.description, Event.time, Event.date, Event.location, Event.company FROM Event inner join EventRegistry on Event.ID = EventRegistry.EID where EventRegistry.SID = ? ORDER BY Event.date ASC', [req.query.SID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the registered events', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get registered event error', e);
-    })
-})
-
-app.get('/getAppliedJobs', function (req, res) {
-    console.log('inside get get applied jobs');
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('SELECT Job.title, Job.location, Job.salary, Job.company, JobRegistry.status FROM Job inner join JobRegistry on Job.ID = JobRegistry.JID where JobRegistry.SID = ?', [req.query.SID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the applied jobs', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get registered event error', e);
-    })
-})
-
-app.get('/getStudents', function (req, res) {
-    console.log('inside get get students');
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('SELECT * from Student where ID <> ?', [req.query.SID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the registered events', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get registered event error', e);
-    })
-})
-
-app.get('/getCompanyDetails', function (req, res) {
-    console.log('inside get get company details');
-    // let ID = localStorage.getItem("ID");
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('SELECT * from Company where ID=?', [req.query.CID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the company details', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get company details error', e);
-    })
 })
 
 app.post("/updateCompanyContact", function (req, res) {
@@ -527,87 +458,6 @@ app.post("/updateCompanyContact", function (req, res) {
             console.log(e)
             console.log('error aavi')
         })
-})
-
-app.post("/updateCompanyDetails", function (req, res) {
-    console.log('inside post update company details');
-    console.log("req body", req.body);
-    async function register() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [rows, fields] = await connection.execute('UPDATE Company SET companyName=?, location=?, description=? WHERE ID=? ', [req.body.companyName, req.body.location, req.body.description, req.body.CID]);
-        await connection.end();
-    }
-
-    register()
-        .then(() => {
-            console.log('update company details successfully');
-            res.end();
-        }).catch(e => {
-            console.log(e)
-            console.log('error aavi')
-        })
-})
-
-app.get('/getEventOfCompany', function (req, res) {
-    console.log('inside get get events');
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('select * from Event where companyID=? ORDER BY date ASC ', [req.query.CID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the events of a company', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get event error', e);
-    })
-})
-
-app.post("/postEvent", function (req, res) {
-    console.log('inside post event');
-    console.log("req body", req.body);
-
-    async function post() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [rows, fields] = await connection.execute('INSERT INTO Event (name,location,description,time,date, eligibility,company, companyID) VALUES (?, ?, ?, ?, ?, ?, ?,?)', [req.body.name, req.body.location, req.body.description, req.body.time, req.body.date, req.body.eligibility, req.body.company, req.body.CID]);
-        await connection.end();
-    }
-
-    post()
-        .then(() => {
-            console.log('posted event successfully');
-            res.end();
-        }).catch(e => {
-            console.log(e)
-            console.log('error aavi')
-        })
-})
-
-app.get('/getRegisteredStudents', function (req, res) {
-    console.log('inside get get registered students');
-
-    async function getData() {
-
-        const connection = await mysql.createConnection({ host: 'handshakedb.clco8f6rhzmw.us-east-1.rds.amazonaws.com', user: 'admin', password: 'admin123', database: 'handshake_clone', port: 3306 });
-        const [upadatedRows, fields1] = await connection.execute('SELECT * FROM Student where ID IN (select SID from EventRegistry where EID = ?)', [req.query.ID]);
-        await connection.end();
-        return upadatedRows;
-    }
-
-    data = getData()
-    data.then((r) => {
-        console.log('got the registered students', r);
-        res.send(r);
-    }).catch(e => {
-        console.log('get registered students error', e);
-    })
 })
 
 app.get('/getAppliedStudents', function (req, res) {

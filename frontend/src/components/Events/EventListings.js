@@ -1,123 +1,95 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-axios.defaults.withCredentials = true;
+import { connect } from "react-redux";
+import cookie from "react-cookies";
+import { studentGetEvents, studentRegisterEvent } from "../../js/actions/eventAction";
 
 class EventsListings extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            eventArray: [],
+            pageNO: 1,
+            name: "",
             firstEvent: {},
-            searchFlag: false,
-            filteredEvents: [],
         }
+        this.next = this.next.bind(this);
+        this.previous = this.previous.bind(this);
         this.showEvent = this.showEvent.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
     }
     componentDidMount() {
-        axios.get('http://localhost:3001/getEvents', { params: { ID: localStorage.getItem("ID") } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    eventArray: this.state.eventArray.concat(response.data),
-                })
-                if (this.state.eventArray.length) {
-                    this.setState({
-                        firstEvent: (this.state.eventArray)[0]
-                    })
-                }
-                console.log('first event', this.state.firstEvent);
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.getEvents();
+    }
+    componentDidUpdate(prevProps) {
+        if (prevProps.events !== this.props.events) {
+            if (this.props.events.length > 0) {
+                this.setState({ firstEvent: this.props.events[0] })
+            }
+            else {
+                this.setState({ firstEvent: {} })
+            }
+        }
+    }
+    getEvents = () => {
+        let data = {
+            pageNO: this.state.pageNO,
+            name: this.state.name
+        }
+        this.props.studentGetEvents(data);
+    }
+    next = () => {
+        this.setState({
+            pageNO: this.state.pageNO + 1
+        }, () => this.getEvents())
+    }
+    previous = () => {
+        this.setState({
+            pageNO: this.state.pageNO - 1
+        }, () => this.getEvents())
     }
     showEvent = (event) => {
         this.setState({
             firstEvent: event
         })
-        // this.state.postingDate = this.state.postingDate.slice(0, 9);
-        // console.log('postig date', this.state.postingDate);
-    }
-    handleSearch = (e) => {
-        let temp = this.state.eventArray;
-        if (e.target.value) {
-            this.setState({
-                searchFlag: true,
-                filteredEvents: temp.filter(event => { return (event.name.replace(/\s/g, '').toLowerCase().includes(e.target.value.replace(/\s/g, '').toLowerCase())) })
-            })
-        } else {
-            this.setState({
-                searchFlag: false
-            })
-        }
     }
     handleRegister = () => {
         let data = {
-            ID: this.state.firstEvent.ID,
-            SID: localStorage.getItem("ID")
+            ID: this.state.firstEvent._id,
+            SID: cookie.load("SID")
         }
-        axios.post('http://localhost:3001/registerEvent', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-            })
-            .catch(error => {
-                console.log(error);
-            })
-
+        this.props.studentRegisterEvent(data);
+        this.forceUpdate();
+    }
+    handleSearch = (e) => {
+        this.setState({
+            name: e.target.value
+        }, () => { this.getEvents() })
     }
     render() {
-        var eventelement = null, eventDetails = null;
-        if (this.state.eventArray.length) {
-            if (this.state.searchFlag) {
-                eventelement = this.state.filteredEvents.map(event => {
-                    return (
-                        <div className="container">
-                            <table className="table">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <button id={event.ID} onClick={() => this.showEvent(event)} className="btn">
-                                                <ul style={{ textAlign: 'left' }}>
-                                                    <li>{event.name}</li>
-                                                    <li>{event.date}</li>
-                                                </ul>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    )
-                })
-            }
-            else {
-                eventelement = this.state.eventArray.map(event => {
-                    return (
-                        <div className="container">
-                            <table className="table">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <button onClick={() => this.showEvent(event)} className="btn">
-                                                <ul style={{ textAlign: 'left' }}>
-                                                    <li>{event.name}</li>
-                                                    <li>{event.date}</li>
-                                                </ul>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    )
-                })
-                // this.setState({
-                //     firstJob: (this.state.jobArray)[0]
-                // })
-            }
+        console.log("first event--", this.state.firstEvent)
+        var eventelement = null, eventDetails = null, errorElememt = null;
+        if (this.props.events.length > 0) {
+            eventelement = this.props.events.map(event => {
+                return (
+                    <div className="container">
+                        <table className="table">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <button id={event.ID} onClick={() => this.showEvent(event)} className="btn">
+                                            <ul style={{ textAlign: 'left' }}>
+                                                <li>{event.name}</li>
+                                                <li>{event.date}</li>
+                                            </ul>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )
+            })
+
             eventDetails =
                 <div className="container">
                     <div className="row">
@@ -127,24 +99,24 @@ class EventsListings extends Component {
                     </div>
                     <div className="row">
                         <div className="col">
-                            <p>{this.state.firstEvent.company}</p>
+                            <p>by {this.state.firstEvent.companyName}</p>
                         </div>
                     </div>
                     <div className="row">
                         <div className="col">
-                            <p>{this.state.firstEvent.location}</p>
+                            <p>at {this.state.firstEvent.location}</p>
                         </div>
                         <div className="col">
-                            <p>{this.state.firstEvent.date}</p>
+                            <p>on: {new Date(this.state.firstEvent.date).getMonth() + 1}-{new Date(this.state.firstEvent.date).getDate()}-{new Date(this.state.firstEvent.date).getFullYear()}</p>
                         </div>
                         <div className="col">
-                            <p>{this.state.firstEvent.time}</p>
+                            <p>Time: {this.state.firstEvent.time}</p>
                         </div>
                         <div className="col">
-                            <p>{this.state.firstEvent.eligibility}</p>
+                            <p>Eligibility: {this.state.firstEvent.eligibility}</p>
                         </div>
                         <div className="col">
-                            {this.state.firstEvent.eligibility === 'Software Engineering' ? <button className="btn btn-primary btn-xs" id="register" onClick={this.handleRegister}>Register</button> : <button className="btn btn-primary btn-xs" id="register" onClick={this.handleRegister} disabled>Register</button>}
+                            {this.state.firstEvent.eligibility === 'Software' || this.state.firstEvent.eligibility === 'all' ? <button className="btn btn-primary btn-xs" id="register" onClick={this.handleRegister}>Register</button> : <button className="btn btn-primary btn-xs" id="register" onClick={this.handleRegister} disabled>Register</button>}
                         </div>
                     </div>
                     <div className="row">
@@ -155,15 +127,21 @@ class EventsListings extends Component {
 
                 </div>
         }
+        else {
+            errorElememt = <h3>No Events found</h3>
+        }
         return (
             <div className='container'>
                 <div style={{ marginTop: '15px', marginBottom: '15px' }} class="form-inline">
-                    <input style={{ width: '100%' }} type="search" onChange={this.handleSearch} class="form-control" placeholder="Search events by name..." />
+                    <input style={{ width: '100%' }} type="text" onChange={this.handleSearch} class="form-control" placeholder="Search events by name..." />
                 </div>
                 <div className="container">
                     <div className="row">
                         <div className="col-4">
                             {eventelement}
+                            {errorElememt}
+                            <button style={this.state.pageNO === 1 ? { display: "none" } : null} onClick={this.previous}>Back</button>
+                            <button style={this.props.events.length > 0 ? { marginLeft: "250px" } : { display: "none" }} onClick={this.next}>Next</button>
                         </div>
                         <div className="col">
                             {eventDetails}
@@ -174,5 +152,9 @@ class EventsListings extends Component {
         );
     }
 }
-
-export default EventsListings;
+function mapStateToProps(state) {
+    return {
+        events: state.StudentEvent.events
+    }
+}
+export default connect(mapStateToProps, { studentGetEvents, studentRegisterEvent })(EventsListings);

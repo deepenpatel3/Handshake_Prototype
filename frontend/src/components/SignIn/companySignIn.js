@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import cookie from 'react-cookies';
 import { companyLogin } from '../../js/actions/loginAction';
 
-class companySignIn extends Component {
+class CompanySignIn extends Component {
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -22,7 +22,7 @@ class companySignIn extends Component {
         if (cookie.load("CID")) {
             redirectVar = <Redirect to="/companyProfile" />
         }
-        if (this.props.isLoggedIn != null && !this.props.isLoggedIn) {
+        if (this.props.isCompanyLoggedIn != null && !this.props.isCompanyLoggedIn) {
             alertElement = <p className='alert alert-danger'>{this.state.msg}</p>
         }
         return (
@@ -57,7 +57,7 @@ class companySignIn extends Component {
 
 function mapStateToProps(state) {
     return {
-        isLoggedIn: state.Login.isLoggedIn
+        isCompanyLoggedIn: state.Login.isCompanyLoggedIn
     };
 }
-export default connect(mapStateToProps, { companyLogin })(companySignIn);
+export default connect(mapStateToProps, { companyLogin })(CompanySignIn);

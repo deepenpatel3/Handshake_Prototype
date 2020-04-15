@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import CompanyNavbar from '../Navbar/companyNavbar';
-import axios from 'axios';
 import cookie from "react-cookies";
 import { Link, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+import { companyPostJob, companyGetJobs, companyChangeAppStatus } from '../../js/actions/jobsAction';
 
 class CompanyJobs extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            jobsArray: [],
+            pageNO: 1,
             firstJob: {},
             postFlag: false,
             registeredStudents: [],
@@ -18,24 +19,32 @@ class CompanyJobs extends Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handlePost = this.handlePost.bind(this);
         this.postJob = this.postJob.bind(this);
+        this.getJobs = this.getJobs.bind(this);
+        this.next = this.next.bind(this);
+        this.previous = this.previous.bind(this);
         this.changeAppStatus = this.changeAppStatus.bind(this);
     }
     componentDidMount() {
-        axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/getCompanyJobs', { params: { CID: localStorage.getItem("CID") } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('response data', response.data);
-                this.setState({
-                    jobsArray: response.data
-                })
-                this.setState({
-                    firstJob: this.state.jobsArray[0]
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+        console.log("inside company jobs COMPODIDMOUNT ")
+        this.getJobs();
+    }
+    getJobs = () => {
+        let data = {
+            CID: cookie.load("CID"),
+            pageNO: this.state.pageNO
+        }
+        this.props.companyGetJobs(data);
+
+    }
+    next = () => {
+        this.setState({
+            pageNO: this.state.pageNO + 1
+        }, () => this.getJobs())
+    }
+    previous = () => {
+        this.setState({
+            pageNO: this.state.pageNO - 1
+        }, () => this.getJobs())
     }
     showJob = (job) => {
         this.setState({
@@ -52,10 +61,11 @@ class CompanyJobs extends Component {
             postFlag: false
         })
     }
-    postJob = () => {
+    postJob = async (e) => {
+        e.preventDefault();
         let data = {
-            CID: localStorage.getItem("CID"),
-            companyName: localStorage.getItem("name"),
+            CID: cookie.load("CID"),
+            companyName: cookie.load("company"),
             title: document.getElementById('title').value,
             postingDate: document.getElementById('postingDate').value,
             deadline: document.getElementById('deadline').value,
@@ -64,57 +74,34 @@ class CompanyJobs extends Component {
             description: document.getElementById('description').value,
             category: document.getElementById('category').value,
         }
-        console.log('data entered', data);
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/postJob', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    postFlag: false
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        await this.props.companyPostJob(data);
+        this.setState({
+            postFlag: false
+        }, () => {
+            this.getJobs();
+        })
     }
     getStudents = () => {
-        let ID = this.state.firstJob.ID;
-        axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/getAppliedStudents', { params: { ID: ID } })
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                console.log('registered students', response.data);
-                this.setState({
-                    registeredStudents: response.data,
-                    studentsFlag: true
-                })
-            })
-            .catch(error => {
-                console.log('error', error);
-            })
+        this.setState({
+            studentsFlag: true
+        })
     }
     changeAppStatus = (student) => {
         let data = {
-            JID: this.state.firstJob.ID,
-            SID: student.ID,
-            status: document.getElementById(student.ID).value
+            _id: this.state.firstJob._id,
+            SID: student._id,
+            status: document.getElementById(student._id).value
         }
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/changeAppStatus', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.props.companyChangeAppStatus(data);
     }
     render() {
+        console.log("current pageNo:- ", this.state.pageNO)
         let jobElement = null, jobOrForm = null, studentsElement = null, redirectVar = null, errorElement = null;
         if (!cookie.load('CID')) {
             redirectVar = <Redirect to="/companySignIn" />;
         }
-        if (this.state.jobsArray.length > 0) {
-            jobElement = this.state.jobsArray.map(job => {
+        if (this.props.jobs.length > 0) {
+            jobElement = this.props.jobs.map(job => {
                 return (
                     <div className="container">
                         <table className="table">
@@ -135,22 +122,23 @@ class CompanyJobs extends Component {
                 )
             })
             if (this.state.studentsFlag) {
-                studentsElement = this.state.registeredStudents.map(student => {
+                studentsElement = this.state.firstJob.appliedStudents.map(student => {
+                    // console.log("student ID---- ", student._id)
                     return (
                         <ul>
                             <li><Link to={{
                                 pathname: "/otherStudent",
                                 state: {
-                                    student: student,
+                                    student: student._id,
                                     path: '/companyJobs'
                                 }
-                            }} style={{ color: 'black', float: 'left' }}>{student.name}</Link>
+                            }} style={{ color: 'black', float: 'left' }}>{student._id.name}</Link>
                                 <label style={{ marginLeft: '15px', float: 'left' }} for="currentStatus"> Current Status:</label>
                                 <p style={{ float: 'left' }} id='currentStatus'>{student.status}</p>
 
                                 <a href={student.resume} style={{ color: 'black', float: 'left', marginLeft: '15px' }} className='btn btn-default'>Resume</a>
                                 <label style={{ marginLeft: '15px', float: 'left' }} for="status"> Change Status:</label>
-                                <select id={student.ID} required>
+                                <select id={student._id} required>
                                     <option value="Pending">Pending</option>
                                     <option value="Reviewed">Reviewed</option>
                                     <option value="Declined">Declined</option>
@@ -161,13 +149,13 @@ class CompanyJobs extends Component {
                     )
                 })
             } else {
-                console.log("student flag:", this.state.studentsFlag)
+                // console.log("student flag:", this.state.studentsFlag)
                 studentsElement = <button className='btn btn-primary btn-xs' onClick={this.getStudents}>Applied Students</button>
             }
             if (this.state.postFlag) {
                 jobOrForm =
                     <div>
-                        <form className="form-group">
+                        <form className="form-group" onSubmit={this.postJob}>
                             <input className="form-control" type='text' id='title' placeholder='Job title' required autoFocus></input>
                             <input className="form-control" type='date' id='postingDate' placeholder='Posting Date' required></input>
                             <input className="form-control" type='date' id='deadline' placeholder='Application Deadline' required></input>
@@ -176,12 +164,12 @@ class CompanyJobs extends Component {
                             <input className="form-control" type='text' id='description' placeholder='Job Description' required></input>
                             <label for="category">Category:</label>
                             <select className="form-control" id="category" required>
-                                <option value="Full Time">Full Time</option>
-                                <option value="Part Time">Part Time</option>
-                                <option value="On Campus">On Campus</option>
-                                <option value="Internship">Internship</option>
+                                <option value="full_time">Full Time</option>
+                                <option value="part_time">Part Time</option>
+                                <option value="on_campus">On Campus</option>
+                                <option value="internship">Internship</option>
                             </select>
-                            <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' onClick={this.postJob}>Post</button>
+                            <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' >Post</button>
                             <button style={{ marginTop: '10px' }} className='btn btn-default btn-xs' onClick={this.handleCancel}>Cancel</button>
                         </form>
                     </div>
@@ -238,10 +226,10 @@ class CompanyJobs extends Component {
                         Job Description: <input className="form-control" type='text' id='description' required></input>
                         Category:
                         <select className="form-control" id="category" required>
-                            <option value="Full Time">Full Time</option>
-                            <option value="Part Time">Part Time</option>
-                            <option value="On Campus">On Campus</option>
-                            <option value="Internship">Internship</option>
+                            <option value="full_time">Full Time</option>
+                            <option value="part_time">Part Time</option>
+                            <option value="on_campus">On Campus</option>
+                            <option value="internship">Internship</option>
                         </select>
                         <button style={{ marginTop: '10px' }} className='btn btn-success btn-xs' onClick={this.postJob}>Post</button>
                         <button style={{ marginTop: '10px' }} className='btn btn-default btn-xs' onClick={this.handleCancel}>Cancel</button>
@@ -256,6 +244,8 @@ class CompanyJobs extends Component {
                 <div style={{ marginTop: '20px' }} className='row'>
                     <div className='col-4'>
                         {jobElement}
+                        <button onClick={this.previous}>Back</button>
+                        <button style={{ marginLeft: "130px" }} onClick={this.next}>Next</button>
                         {errorElement}
                     </div>
                     <div className='col-8'>
@@ -267,4 +257,9 @@ class CompanyJobs extends Component {
     }
 }
 
-export default CompanyJobs;
+function mapStateToProps(state) {
+    return {
+        jobs: state.CompanyJob.jobs
+    }
+}
+export default connect(mapStateToProps, { companyGetJobs, companyPostJob, companyChangeAppStatus })(CompanyJobs);

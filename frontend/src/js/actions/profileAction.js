@@ -1,4 +1,4 @@
-import { STUDENT_GET_BASIC_DETAILS, STUDENT_UPDATE_BASIC_DETAILS, STUDENT_GET_CONTACT_INFO, STUDENT_UPDATE_CONTACT_INFO, STUDENT_SKILLS, STUDENT_CAREER_OBJECTIVE, STUDENT_EDUCATION_DETAILS, STUDENT_EXPERIENCE } from '../constants/action-types';
+import { STUDENT_GET_BASIC_DETAILS, STUDENT_UPDATE_BASIC_DETAILS, STUDENT_GET_CONTACT_INFO, STUDENT_UPDATE_CONTACT_INFO, STUDENT_SKILLS, STUDENT_CAREER_OBJECTIVE, STUDENT_EDUCATION_DETAILS, STUDENT_EXPERIENCE, COMPANY_BASIC_DETAILS, COMPANY_UPDATE_CONTACT, COMPANY_UPDATE_BASIC_DETAILS } from '../constants/action-types';
 import cookie from "react-cookies";
 import axios from 'axios';
 const { backendURL } = require("../../Config");
@@ -324,5 +324,59 @@ export const studentDeleteExperience = (formData) => dispatch => {
         .then(response => {
             console.log("student deleted experience details- ", response.data);
             return dispatch({ type: STUDENT_EXPERIENCE, payload: response.data.token });
+        })
+}
+
+export const companyGetDetails = () => dispatch => {
+    console.log("inside get details action")
+    let data = {
+        CID: cookie.load("CID")
+    }
+    axios({
+        url: backendURL + '/company/profile/getBasicDetails',
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': cookie.load("companyToken")
+        },
+        params: data
+    })
+        .then(response => {
+            // console.log("student basic details", response.data);
+            return dispatch({ type: COMPANY_BASIC_DETAILS, payload: response.data.token });
+        })
+}
+
+export const companyUpdateContactDetails = (formData) => dispatch => {
+    console.log("inside student update contact action")
+    axios({
+        url: backendURL + '/company/profile/updateContactDetails',
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': cookie.load("companyToken")
+        },
+        data: formData
+    })
+        .then(response => {
+            console.log("company update contact details- ", response.data);
+            return dispatch({ type: COMPANY_UPDATE_CONTACT, payload: response.data.token });
+        })
+}
+
+export const companyUpdateBasicDetails = (formData) => dispatch => {
+    console.log("inside student update basic details action")
+    axios({
+        url: backendURL + '/company/profile/updateBasicDetails',
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': cookie.load("companyToken")
+        },
+        data: formData
+    })
+        .then(response => {
+            console.log("company update basic details details- ", response.data);
+            return dispatch({ type: COMPANY_UPDATE_BASIC_DETAILS, payload: response.data.token });
         })
 }

@@ -38,7 +38,8 @@ class SingleExperience extends Component {
             editFlag: false
         })
     }
-    handleSave = () => {
+    handleSave = async (e) => {
+        e.preventDefault();
         let data = {
             _id: this.state.ID,
             SID: cookie.load("SID"),
@@ -49,7 +50,10 @@ class SingleExperience extends Component {
             endDate: document.getElementById("endDate").value,
             description: document.getElementById("description").value
         }
-        this.props.studentUpdateExperience(data);
+        await this.props.studentUpdateExperience(data);
+        this.setState({
+            editFlag: false
+        })
     }
     render() {
         let singleExp = null;

@@ -30,15 +30,15 @@ class Skills extends Component {
         }
     }
     handleSave = async (e) => {
-	e.preventDefault();        
-	let data = {
+        e.preventDefault();
+        let data = {
             SID: cookie.load("SID"),
             skill: document.getElementById("skill").value
         }
         await this.props.studentAddSkill(data);
-	this.setState({
-		addFlag: false
-	})
+        this.setState({
+            addFlag: false
+        })
     }
     render() {
         let skillElement = null;

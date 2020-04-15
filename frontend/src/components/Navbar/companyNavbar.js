@@ -13,6 +13,7 @@ class CompanyNavbar extends Component {
     handleLogout = () => {
         cookie.remove("CID", { path: "/" });
         cookie.remove("company", { path: "/" });
+        cookie.remove("companyToken", { path: "/" });
     };
     render() {
         return (
@@ -24,6 +25,11 @@ class CompanyNavbar extends Component {
                                 <Link to="/companyProfile" ><strong>Handshake</strong></Link>
                             </div>
                         </div>
+                        <ul className="nav navbar-nav">
+                            <li>
+                                <Link to="/companyMessages"><strong>Messages</strong></Link>
+                            </li>
+                        </ul>
                         <ul className="nav navbar-nav">
                             <li>
                                 <Link to="/companyJobs"><strong>Jobs</strong></Link>

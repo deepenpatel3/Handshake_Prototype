@@ -32,6 +32,7 @@ class EducationDetails extends Component {
     }
 
     handleSave = async (e) => {
+        e.preventDefault();
         let data = {
             SID: cookie.load("SID"),
             school: document.getElementById("school").value,
@@ -42,13 +43,8 @@ class EducationDetails extends Component {
             gpa: document.getElementById("gpa").value
         }
         await this.props.studentAddEducationDetails(data);
-	this.setState({
-		addFlag: false
-	})
-    }
-    handleChange = (e) => {
         this.setState({
-            [e.target.name]: e.target.value
+            addFlag: false
         })
     }
     render() {

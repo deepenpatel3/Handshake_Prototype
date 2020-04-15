@@ -22,7 +22,7 @@ class StudentSignIn extends Component {
         if (cookie.load("SID")) {
             redirectVar = <Redirect to="/profile" />
         }
-        if (this.props.isLoggedIn != null && !this.props.isLoggedIn) {
+        if (this.props.isStudentLoggedIn != null && !this.props.isStudentLoggedIn) {
             alertElement = <p className='alert alert-danger'>Invalid Credentials</p>
         }
         return (
@@ -57,7 +57,7 @@ class StudentSignIn extends Component {
 
 function mapStateToProps(state) {
     return {
-        isLoggedIn: state.Login.isLoggedIn
+        isStudentLoggedIn: state.Login.isStudentLoggedIn
     };
 }
 export default connect(mapStateToProps, { studentLogin })(StudentSignIn);

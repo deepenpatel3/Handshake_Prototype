@@ -11,7 +11,7 @@ function ConnectionProvider() {
             }
         });*/
         this.kafkaConsumerConnection = new kafka.Consumer(this.client, [{ topic: topic_name, partition: 0 }]);
-        this.client.on('ready', function () { console.log('client ready!') })
+        this.client.on('ready', function () { })
         // }
         return this.kafkaConsumerConnection;
     };

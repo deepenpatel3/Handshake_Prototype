@@ -9,7 +9,7 @@ auth();
 
 
 router.get('/getBasicDetails', checkStudentAuth, function (req, res) {
-    console.log('inside get basic details api');
+    console.log('inside student get basic details api');
     console.log('req', req.query)
 
     kafka.make_request('student_profile', { "path": "get_basic_details", "body": req.query }, function (err, result) {
@@ -30,7 +30,6 @@ router.get('/getBasicDetails', checkStudentAuth, function (req, res) {
             res.end(JSON.stringify({ token: "JWT " + token }))
         }
     });
-
 })
 
 router.post('/updateBasicDetails', checkStudentAuth, function (req, res) {
@@ -79,11 +78,11 @@ router.get('/getContactInfo', checkStudentAuth, function (req, res) {
     });
 })
 
-router.post('/updateContactInfo', function (req, res) {
+router.post('/updateContactInfo', checkStudentAuth, function (req, res) {
     console.log('inside update contact info');
 
-    kafka.make_request('student_profile', { "path": "update_contact_info", "body": req.body }, function (err, result) {
-        console.log("got back from update_contact_info kafka");
+    kafka.make_request('student_profile', { "path": "student_update_contact_info", "body": req.body }, function (err, result) {
+        console.log("got back from student_update_contact_info kafka");
         if (err) {
             console.log('error', err)
             res.end();
@@ -102,7 +101,7 @@ router.post('/updateContactInfo', function (req, res) {
 
 })
 
-router.get('/getCareerObjective', function (req, res) {
+router.get('/getCareerObjective', checkStudentAuth, function (req, res) {
     console.log('inside get career objective api');
 
     kafka.make_request('student_profile', { "path": "get_career_objective", "body": req.query }, function (err, result) {
@@ -123,7 +122,7 @@ router.get('/getCareerObjective', function (req, res) {
     });
 })
 
-router.post('/updateCareerObjective', function (req, res) {
+router.post('/updateCareerObjective', checkStudentAuth, function (req, res) {
     console.log('inside update career objective api');
 
     kafka.make_request('student_profile', { "path": "update_career_objective", "body": req.body }, function (err, result) {
@@ -145,7 +144,7 @@ router.post('/updateCareerObjective', function (req, res) {
 
 })
 
-router.get('/getSkills', function (req, res) {
+router.get('/getSkills', checkStudentAuth, function (req, res) {
     console.log('inside get skills api');
 
     kafka.make_request('student_profile', { "path": "get_skills", "body": req.query }, function (err, result) {
@@ -166,7 +165,7 @@ router.get('/getSkills', function (req, res) {
     });
 })
 
-router.post('/addSkill', function (req, res) {
+router.post('/addSkill', checkStudentAuth, function (req, res) {
     console.log('inside add skill api');
 
     kafka.make_request('student_profile', { "path": "add_skill", "body": req.body }, function (err, result) {
@@ -187,7 +186,7 @@ router.post('/addSkill', function (req, res) {
     });
 })
 
-router.post('/updateSkill', function (req, res) {
+router.post('/updateSkill', checkStudentAuth, function (req, res) {
     console.log('inside update skill api');
 
     kafka.make_request('student_profile', { "path": "update_skill", "body": req.body }, function (err, result) {
@@ -208,7 +207,7 @@ router.post('/updateSkill', function (req, res) {
     });
 })
 
-router.post('/deleteSkill', function (req, res) {
+router.post('/deleteSkill', checkStudentAuth, function (req, res) {
     console.log('inside delete skill api');
 
     kafka.make_request('student_profile', { "path": "delete_skill", "body": req.body }, function (err, result) {
@@ -229,7 +228,7 @@ router.post('/deleteSkill', function (req, res) {
     });
 })
 
-router.get('/getEducationDetails', function (req, res) {
+router.get('/getEducationDetails', checkStudentAuth, function (req, res) {
     console.log('inside get education api');
 
     kafka.make_request('student_profile', { "path": "get_education_details", "body": req.query }, function (err, result) {
@@ -250,7 +249,7 @@ router.get('/getEducationDetails', function (req, res) {
     });
 })
 
-router.post('/addEducationDetails', function (req, res) {
+router.post('/addEducationDetails', checkStudentAuth, function (req, res) {
     console.log('inside add education api');
 
     kafka.make_request('student_profile', { "path": "add_education_details", "body": req.body }, function (err, result) {
@@ -271,7 +270,7 @@ router.post('/addEducationDetails', function (req, res) {
     });
 })
 
-router.post('/updateEducationDetails', function (req, res) {
+router.post('/updateEducationDetails', checkStudentAuth, function (req, res) {
     console.log('inside update education api');
 
     kafka.make_request('student_profile', { "path": "update_education_details", "body": req.body }, function (err, result) {
@@ -292,7 +291,7 @@ router.post('/updateEducationDetails', function (req, res) {
     });
 })
 
-router.post('/deleteEducationDetails', function (req, res) {
+router.post('/deleteEducationDetails', checkStudentAuth, function (req, res) {
     console.log('inside update education api');
 
     kafka.make_request('student_profile', { "path": "delete_education_details", "body": req.body }, function (err, result) {
@@ -313,7 +312,7 @@ router.post('/deleteEducationDetails', function (req, res) {
     });
 })
 
-router.get('/getExperience', function (req, res) {
+router.get('/getExperience', checkStudentAuth, function (req, res) {
     console.log('inside get experience api');
 
     kafka.make_request('student_profile', { "path": "get_experience", "body": req.query }, function (err, result) {
@@ -334,7 +333,7 @@ router.get('/getExperience', function (req, res) {
     });
 })
 
-router.post('/addExperience', function (req, res) {
+router.post('/addExperience', checkStudentAuth, function (req, res) {
     console.log('inside addExperience api');
 
     kafka.make_request('student_profile', { "path": "add_experience", "body": req.body }, function (err, result) {
@@ -355,7 +354,7 @@ router.post('/addExperience', function (req, res) {
     });
 })
 
-router.post('/updateExperience', function (req, res) {
+router.post('/updateExperience', checkStudentAuth, function (req, res) {
     console.log('inside updateExperience api');
 
     kafka.make_request('student_profile', { "path": "update_experience", "body": req.body }, function (err, result) {
@@ -376,7 +375,7 @@ router.post('/updateExperience', function (req, res) {
     });
 })
 
-router.post('/deleteExperience', function (req, res) {
+router.post('/deleteExperience', checkStudentAuth, function (req, res) {
     console.log('inside deleteExperience api');
 
     kafka.make_request('student_profile', { "path": "delete_experience", "body": req.body }, function (err, result) {

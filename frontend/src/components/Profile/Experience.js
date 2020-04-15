@@ -32,7 +32,8 @@ class Experience extends Component {
         // console.log('addflag after add button: after toggling', this.state.addFlag)
     }
 
-    handleSave = () => {
+    handleSave = async (e) => {
+        e.preventDefault();
         let data = {
             SID: cookie.load("SID"),
             companyName: document.getElementById("companyName").value,
@@ -42,7 +43,10 @@ class Experience extends Component {
             endDate: document.getElementById("endDate").value,
             description: document.getElementById("description").value
         }
-        this.props.studentAddExperience(data);
+        await this.props.studentAddExperience(data);
+        this.setState({
+            addFlag: false
+        })
     }
     handleChange = (e) => {
         this.setState({

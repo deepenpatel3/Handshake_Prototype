@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const { secret } = require('../../Utils/config');
 const kafka = require("../../../kafka/client");
 const { auth } = require("../../Utils/passport");
-const Students = require("../../Models/studentModel")
 auth();
 
 router.post("/signIn", (req, res) => {
@@ -44,49 +43,17 @@ router.post("/signIn", (req, res) => {
 
 router.post("/signUp", function (req, res) {
     console.log('inside student sign up');
-    console.log("email", req.body.email);
-    let password = req.body.password;
-    let hash = bcrypt.hashSync(password, salt);
 
-    var newStudent = new Students({
-        name: req.body.name,
-        password: hash,
-        email: req.body.email,
-        city: req.body.city,
-        school: req.body.school
-    });
-    Students.findOne({ email: req.body.email }, (error, student) => {
-        if (error) {
-            console.log('error', error)
-            res.writeHead(500, {
-                'Content-Type': 'text/plain'
+    kafka.make_request('login', { "path": "student_signup", "body": req.body }, function (err, result) {
+        console.log('in student signup result');
+        if (err) {
+            console.log('error', err)
+            res.send({
+                signUpSuccess: false
             })
-            res.end();
-        }
-        if (student) {
-            console.log('student found', student)
-            // res.writeHead(400, {
-            //     'Content-Type': 'text/plain'
-            // })
-            res.end(JSON.stringify({ signUpSuccess: false }))
-        }
-        else {
-            newStudent.save((error, student) => {
-                if (error) {
-                    console.log('error', error)
-                    res.writeHead(500, {
-                        'Content-Type': 'text/plain'
-                    })
-                    res.end();
-                }
-                else {
-                    console.log('student entered', student)
-                    // res.writeHead(200, {
-                    //     'Content-Type': 'text/plain'
-                    // })
-                    res.end(JSON.stringify({ SID: student._id, name: student.name, signUpSuccess: true }));
-                }
-            });
+        } else {
+            // console.log("result", result);
+            res.end(JSON.stringify({ signUpSuccess: result.signUpSuccess }))
         }
     });
 })

@@ -1,48 +1,26 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { connect } from "react-redux";
+import { companySignup } from "../../js/actions/loginAction";
 import { Redirect, Link } from 'react-router-dom';
 
-export default class companySignUp extends Component {
+class CompanySignUp extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            companyName: '',
-            email: '',
-            password: '',
-            location: '',
-            signedUp: false
-        }
-        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-    }
-    handleChange = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
     }
     handleSubmit = (e) => {
         e.preventDefault();
         const data = {
-            companyName: this.state.companyName,
-            email: this.state.email,
-            password: this.state.password,
-            location: this.state.location
+            companyName: document.getElementById("companyName").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            location: document.getElementById("location").value
         }
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/companySignUp', data)
-            .then(response => {
-                console.log("Status Code : ", response.status);
-                this.setState({
-                    signedUp: true
-                })
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        this.props.companySignup(data);
     }
     render() {
         let redirectVar = null;
-        if (this.state.signedUp) {
+        if (this.props.isCompanySignedUp === true) {
             redirectVar = <Redirect to='/companySignIn' />
         }
         return (
@@ -94,3 +72,9 @@ export default class companySignUp extends Component {
         );
     }
 }
+function mapStateToProps(state) {
+    return {
+        isCompanySignedUp: state.Login.isCompanySignedUp
+    };
+}
+export default connect(mapStateToProps, { companySignup })(CompanySignUp);
