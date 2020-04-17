@@ -33,36 +33,36 @@ class SingleSkill extends Component {
         }
     }
     handleSave = async (e) => {
-	e.preventDefault();        
-	let data = {
+        e.preventDefault();
+        let data = {
             SID: cookie.load("SID"),
             skill: this.state.skill,
             updatedSkill: document.getElementById("skill").value
         }
         await this.props.studentUpdateSkill(data);
-	this.setState({
-		editFlag: false
-	})
+        this.setState({
+            editFlag: false
+        })
     }
     render() {
         let singleExp = null;
         // console.log('skill- ', this.state.skill)
         if (this.state.editFlag === false) {
             singleExp =
-                <div>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>{this.state.skill}</td>
-                                <td align="right">
-                                    <button onClick={this.handleToggle} className="btn btn-primary btn-xs">Edit</button>
-                                    <button onClick={this.handleDelete} className="btn btn-danger btn-xs">Delete</button>
-                                </td>
-                            </tr>
-                            <br />
-                        </tbody>
-                    </table>
+                <div className='row'>
+                    <div className='col-md-7'>
+                        {this.state.skill}
+                    </div>
+
+                    <div style={{ float: "left" }} className='col-sm-2'>
+                        <button onClick={this.handleDelete} className="btn"><i class="fa fa-trash" /></button>
+                    </div>
+                    <div className="col-sm-2">
+                        <button style={{}} onClick={this.handleToggle} className="btn "><i class="fa fa-edit" /></button>
+                    </div>
                 </div>
+
+
         } else {
             singleExp =
                 <div>
@@ -75,17 +75,15 @@ class SingleSkill extends Component {
                             required
                             autoFocus />
                         <br />
-                        <button style={{ marginTop: '20px' }} className="btn btn-danger btn-xs" onClick={this.handleToggle}>Cancel</button>
-                        <button type="submit" style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success btn-xs">Save</button>
+                        <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleToggle}>Cancel</button>
+                        <button type="submit" style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-xs btn-outline-success waves-effect">Save</button>
                     </form>
                 </div>
         }
         return (
-            <div>
-                <div key={this.props.item}>
+            <div key={this.props.item}>
 
-                    {singleExp}
-                </div>
+                {singleExp}
             </div>
         );
     }

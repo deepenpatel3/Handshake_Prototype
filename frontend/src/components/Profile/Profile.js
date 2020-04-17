@@ -23,14 +23,14 @@ class Profile extends Component {
                 {redirectVar}
                 <Navbar />
                 <div className='col-md-4'>
-                    <div style={{ border: '1px dotted black' }}> <BasicDetails /> </div>
-                    <div style={{ border: '1px dotted black' }}> <ContactInfo /> </div>
-                    <div style={{ border: '1px dotted black' }}> <Skills /> </div>
+                    <div className="card bg-light text-dark, shadow p-3 mb-5 bg-white rounded" > <BasicDetails /> </div>
+                    <div className="card bg-light text-dark, shadow p-3 mb-5 bg-white rounded"> <ContactInfo /> </div>
+                    <div className="card bg-light text-dark, shadow p-3 mb-5 bg-white rounded"> <Skills /> </div>
                 </div>
                 <div className='col-md-8'>
-                    <div style={{ border: '1px dotted black' }}><CareerObjective /></div>
-                    <div style={{ border: '1px dotted black' }}><EducationDetails /></div>
-                    <div style={{ border: '1px dotted black' }}><Experience /></div>
+                    <div className="card bg-light text-dark, shadow p-3 mb-5 bg-white rounded"><CareerObjective /></div>
+                    <div className="card bg-light text-dark, shadow p-3 mb-5 bg-white rounded"><EducationDetails /></div>
+                    <div className="card bg-light text-dark, shadow p-3 mb-5 bg-white rounded"><Experience /></div>
                 </div>
             </div>
         );

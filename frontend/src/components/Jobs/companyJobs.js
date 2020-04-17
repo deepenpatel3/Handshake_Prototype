@@ -28,6 +28,11 @@ class CompanyJobs extends Component {
         console.log("inside company jobs COMPODIDMOUNT ")
         this.getJobs();
     }
+    componentDidUpdate(prevProps) {
+        if (prevProps.jobs !== this.props.jobs) {
+            this.setState({ firstJob: this.props.jobs[0] })
+        }
+    }
     getJobs = () => {
         let data = {
             CID: cookie.load("CID"),

@@ -23,14 +23,23 @@ exports.serve = function serve(msg, callback) {
 }
 
 function student_get_students(msg, callback) {
-    let pageNO = msg.body.pageNO;
+    // let pageNO = msg.body.pageNO;
 
-    Students.find({ $and: [{ _id: { $ne: msg.body.ID } }, { $or: [{ name: { $regex: '.*' + msg.body.nameOrSchool + '.*' } }, { school: { $regex: '.*' + msg.body.nameOrSchool + '.*' } }] }] }).limit(4).skip((pageNO - 1) * 4).exec((err, students) => {
+    // Students.find({ $and: [{ _id: { $ne: msg.body.ID } }, { $or: [{ name: { $regex: '.*' + msg.body.nameOrSchool + '.*' } }, { school: { $regex: '.*' + msg.body.nameOrSchool + '.*' } }] }] }).limit(4).skip((pageNO - 1) * 4).exec((err, students) => {
+    //     if (err) {
+    //         console.log('error', err)
+    //         callback(null, false);
+    //     } else {
+    //         callback(null, students)
+    //     }
+    // })
+
+    Students.findOne({ _id: msg.body.ID }, (err, students) => {
         if (err) {
             console.log('error', err)
             callback(null, false);
         } else {
-            callback(null, students)
+            callback(null, students.name)
         }
     })
 }

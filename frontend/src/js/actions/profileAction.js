@@ -4,7 +4,7 @@ import axios from 'axios';
 const { backendURL } = require("../../Config");
 
 export const studentGetBasicDetails = () => dispatch => {
-    console.log("insdie get basic details action")
+    // console.log("insdie get basic details action")
     let data = {
         SID: cookie.load("SID")
     }
@@ -24,7 +24,7 @@ export const studentGetBasicDetails = () => dispatch => {
 }
 
 export const studentUpdateBasicDetails = (formData) => dispatch => {
-    console.log("inside update details action");
+    // console.log("inside update details action");
     axios({
         url: backendURL + '/student/profile/updateBasicDetails',
         method: "POST",
@@ -41,7 +41,7 @@ export const studentUpdateBasicDetails = (formData) => dispatch => {
 }
 
 export const studentGetContactInfo = () => dispatch => {
-    console.log("inside student get contact info")
+    // console.log("inside student get contact info")
     let data = {
         SID: cookie.load("SID")
     }
@@ -61,7 +61,7 @@ export const studentGetContactInfo = () => dispatch => {
 }
 
 export const studentUpdateContactInfo = (formData) => dispatch => {
-    console.log("inside student update contact info")
+    // console.log("inside student update contact info")
     axios({
         url: backendURL + '/student/profile/updateContactInfo',
         method: "POST",
@@ -78,7 +78,7 @@ export const studentUpdateContactInfo = (formData) => dispatch => {
 }
 
 export const studentGetCareerObjective = () => dispatch => {
-    console.log("inside student get career objective action")
+    // console.log("inside student get career objective action")
     let data = {
         SID: cookie.load("SID")
     }
@@ -115,7 +115,7 @@ export const studentUpdateCareerObjective = (formData) => dispatch => {
 }
 
 export const studentGetSkills = () => dispatch => {
-    console.log("inside student get skills action")
+    // console.log("inside student get skills action")
     let data = {
         SID: cookie.load("SID")
     }
@@ -234,7 +234,7 @@ export const studentUpdateEducationDetails = (formData) => dispatch => {
         data: formData
     })
         .then(response => {
-            console.log("student updated education details- ", response.data);
+            // console.log("student updated education details- ", response.data);
             return dispatch({ type: STUDENT_EDUCATION_DETAILS, payload: response.data.token });
         })
 }
@@ -257,7 +257,7 @@ export const studentDeleteEducationDetails = (formData) => dispatch => {
 }
 
 export const studentGetExperience = () => dispatch => {
-    console.log("inside student get experience action")
+    // console.log("inside student get experience action")
     let data = {
         SID: cookie.load("SID")
     }

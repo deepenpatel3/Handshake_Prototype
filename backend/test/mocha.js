@@ -8,10 +8,10 @@ var server = supertest.agent("http://localhost:3001");
 describe("MochaTest", function () {
 
     //company sign in
-    it("should login company", function (done) {
+    it("should login student", function (done) {
         server
-            .post("/companySignIn")
-            .send({ email: "shipt@shipt.com", password: "Aa123456" })
+            .post("/student/account/signIn")
+            .send({ email: "darshit@ucla.edu", password: "Dd123456" })
             .expect(200)
             .end(function (err, res) {
                 console.log("Status: ", res.status);
@@ -22,12 +22,12 @@ describe("MochaTest", function () {
     });
 
     //student sign in
-    it("should login student", function (done) {
+    it("should login company", function (done) {
         server
-            .post("/studentSignIn")
+            .post("/company/account/signIn")
             .send({
-                email: "ronald@sjsu.edu",
-                password: "Dd123456"
+                email: "google@google.com",
+                password: "Gg123456"
             })
             .expect(200)
             .end(function (err, res) {
@@ -41,7 +41,7 @@ describe("MochaTest", function () {
     //company sign up
     it("Should sign up company", function (done) {
         server
-            .post("/companySignUp")
+            .post("/company/account/signUp")
             .send({
                 companyName: "Amazon", email: "amazon@amazon.com", password: "Aa123456", location: "San Jose"
             })
@@ -54,12 +54,12 @@ describe("MochaTest", function () {
     });
 
 
-    //student sign up
+    // //student sign up
     it("Should sign up student", function (done) {
         server
-            .post("/studentSignUp")
+            .post("/student/account/signUp")
             .send({
-                name: "Darshit", email: "Darshit@gmail.com", password: "Dd123456", city: "San Jose", school: "SJSU"
+                name: "Narain", email: "narain@gmail.com", password: "Nn123456", city: "San Jose", school: "SJSU"
             })
             .expect(200)
             .end(function (err, res) {
@@ -69,11 +69,11 @@ describe("MochaTest", function () {
             });
     });
 
-    //Education details
-    it("should get edu details", function (done) {
+    // //Education details
+    it("should get all students", function (done) {
         server
-            .get("/getEducationDetails")
-            .query({ ID: 3 })
+            .get("/student/students/getStudents")
+            .query({ ID: "5e978810c17e0d37d1e3de4c", pageNO: 1 })
             .expect(200)
             .end(function (err, res) {
                 console.log("Status: ", res.status);

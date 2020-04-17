@@ -7,13 +7,6 @@ class SingleEducationDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            _id: this.props.item._id,
-            school: this.props.item.school,
-            location: this.props.item.location,
-            degree: this.props.item.degree,
-            major: this.props.item.major,
-            passingYear: this.props.item.passingYear,
-            gpa: this.props.item.gpa,
             editFlag: false
         }
         this.handleCancel = this.handleCancel.bind(this);
@@ -23,7 +16,7 @@ class SingleEducationDetails extends Component {
     }
     handleDelete = () => {
         let data = {
-            _id: this.state._id,
+            _id: this.props.item._id,
             SID: cookie.load("SID")
         }
         this.props.studentDeleteEducationDetails(data);
@@ -42,7 +35,7 @@ class SingleEducationDetails extends Component {
         e.preventDefault();
         let data = {
             SID: cookie.load("SID"),
-            _id: this.state._id,
+            _id: this.props.item._id,
             school: document.getElementById("school").value,
             location: document.getElementById("location").value,
             degree: document.getElementById("degree").value,
@@ -57,6 +50,8 @@ class SingleEducationDetails extends Component {
 
     }
     render() {
+        // console.log("inside single education render---", this.state.school, ",", this.props.item.school)
+
         let singleEducation = null;
         if (this.state.editFlag === false) {
             // console.log('editflag inside false condition', this.state.editFlag);
@@ -65,22 +60,21 @@ class SingleEducationDetails extends Component {
                     <table>
                         <tbody>
                             <tr>
-                                <td>{this.state.school}</td>
-                                <td align="right" rowspan="5"><button onClick={this.handleEdit} className="btn btn-primary btn-xs">Edit</button><br />
-                                    <button onClick={this.handleDelete} className="btn btn-danger btn-xs">Delete</button>
+                                <td>{this.props.item.school}</td>
+                                <td align="right" rowspan="5">
                                 </td>
                             </tr>
                             <tr>
-                                <td>{this.state.location}</td>
+                                <td>{this.props.item.location}</td>
                             </tr>
                             <tr>
-                                <td>{this.state.degree} in {this.state.major}</td>
+                                <td>{this.props.item.degree} in {this.props.item.major}</td>
                             </tr>
                             <tr>
-                                <td>Gradutaion year: {this.state.passingYear}</td>
+                                <td>Gradutaion year: {this.props.item.passingYear}</td>
                             </tr>
                             <tr>
-                                <td>GPA: {this.state.gpa}</td>
+                                <td>GPA: {this.props.item.gpa}</td>
                             </tr>
                             <br />
                         </tbody>
@@ -133,21 +127,24 @@ class SingleEducationDetails extends Component {
                             placeholder="GPA"
                             required />
                         <br />
-                        <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleCancel}>Cancel</button>
-                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success" onClick={this.handleSave}>Save</button>
+                        <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleCancel}>Cancel</button>
+                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-outline-success waves-effect" onClick={this.handleSave}>Save</button>
                     </form>
                 </div>
         }
         return (
-            <div>
-                <div key={this.props.item._id}>
+            <div key={this.props.item._id}>
+                <div className="col-sm-1">
+                    <button onClick={this.handleEdit} className="btn btn-lg"><i class="fa fa-edit" /></button><br />
+                    <button onClick={this.handleDelete} className="btn btn-lg"><i class="fa fa-trash" /></button>
                 </div>
-                {singleEducation}
+                <div className="col-sm-10">
+                    {singleEducation}
+                </div>
             </div>
         );
     }
 }
-
 export default connect(null, { studentUpdateEducationDetails, studentDeleteEducationDetails })(SingleEducationDetails);
 
 

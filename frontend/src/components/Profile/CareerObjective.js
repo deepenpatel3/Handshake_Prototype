@@ -39,42 +39,35 @@ class CareerObjective extends Component {
         })
     }
     render() {
-        let editButton = null;
         let infoOrForm = null;
 
 
         if (this.state.editFlag === false) {
-            infoOrForm =
-                <ul className="container" >
-                    <li className="list-group-item">{this.props.careerObjective}</li>
-                </ul>
-
-            editButton =
-                <button onClick={this.handleEdit} className="btn btn-primary btn-xs">
-                    Edit
-                </button>
+            infoOrForm = <p style={{ border: "0" }} className="list-group-item">{this.props.careerObjective}</p>
         }
         else {
             infoOrForm =
                 <form className="container">
-                    <input
-
-                        style={{ width: '400px', height: '100px', marginTop: '20px' }}
-                        type="text"
+                    <textarea
+                        style={{ width: '400px' }}
+                        // type="textarea"
                         id="careerObjective"
                         name="careerObjective"
                         required
                         autoFocus />
                     <br />
-                    <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleCancel}>Cancel</button>
-                    <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success" onClick={this.handleSave}>Save</button>
+                    <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleCancel}>Cancel</button>
+                    <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-outline-success waves-effect" onClick={this.handleSave}>Save</button>
                 </form>
         }
         return (
-            <div className="container">
+
+            <div className="container, card-body">
                 <label >Career Objective</label>
+                <button style={{ marginLeft: "545px" }} onClick={this.handleEdit} className="btn btn-lg"><i class="fa fa-edit" /></button>
+
                 {infoOrForm}
-                {editButton}
+
             </div>
         );
     }

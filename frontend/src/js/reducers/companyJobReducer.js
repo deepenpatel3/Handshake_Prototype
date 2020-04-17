@@ -1,4 +1,4 @@
-import { COMPANY_GET_JOBS } from '../constants/action-types';
+import { COMPANY_GET_JOBS, COMPANY_POST_JOB, COMPANY_CHANGE_STATUS } from '../constants/action-types';
 const jwt_decode = require('jwt-decode')
 
 const initialState = {
@@ -13,7 +13,12 @@ export default function companyJobReducer(state = initialState, action) {
             return Object.assign({}, state, {
                 jobs: decoded.jobs
             });
-
+        case COMPANY_POST_JOB:
+            // console.log("inside company get jobs reducer");
+            return state;
+        case COMPANY_CHANGE_STATUS:
+            // console.log("inside company get jobs reducer");
+            return state;
         default:
             return state;
     }

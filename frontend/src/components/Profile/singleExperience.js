@@ -7,13 +7,6 @@ class SingleExperience extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            ID: this.props.item._id,
-            companyName: this.props.item.companyName,
-            title: this.props.item.title,
-            location: this.props.item.location,
-            startDate: this.props.item.startDate,
-            endDate: this.props.item.endDate,
-            description: this.props.item.description,
             editFlag: false
         }
         this.handleCancel = this.handleCancel.bind(this);
@@ -23,7 +16,7 @@ class SingleExperience extends Component {
     }
     handleDelete = () => {
         let data = {
-            _id: this.state.ID,
+            _id: this.props.item._id,
             SID: cookie.load("SID")
         }
         this.props.studentDeleteExperience(data);
@@ -41,7 +34,7 @@ class SingleExperience extends Component {
     handleSave = async (e) => {
         e.preventDefault();
         let data = {
-            _id: this.state.ID,
+            _id: this.props.item._id,
             SID: cookie.load("SID"),
             companyName: document.getElementById("companyName").value,
             title: document.getElementById("title").value,
@@ -62,19 +55,18 @@ class SingleExperience extends Component {
                 <div>
                     <table>
                         <tbody><tr>
-                            <td>As a {this.state.title}</td>
-                            <td align="right" rowspan="4"><button onClick={this.handleEdit} className="btn btn-primary btn-xs">Edit</button><br />
-                                <button onClick={this.handleDelete} className="btn btn-danger btn-xs">Delete</button>
+                            <td>As a {this.props.item.title}</td>
+                            <td align="right" rowspan="4">
                             </td>
                         </tr>
                             <tr>
-                                <td> At {this.state.companyName}, Located at {this.state.location}</td>
+                                <td> At {this.props.item.companyName}, Located at {this.props.item.location}</td>
                             </tr>
                             <tr>
-                                <td> From {this.state.startDate} to {this.state.endDate}</td>
+                                <td> From {new Date(this.props.item.startDate).getMonth() + 1}-{new Date(this.props.item.startDate).getDate()}-{new Date(this.props.item.startDate).getFullYear()} to {new Date(this.props.item.endDate).getMonth() + 1}-{new Date(this.props.item.endDate).getDate()}-{new Date(this.props.item.endDate).getFullYear()}</td>
                             </tr>
                             <tr>
-                                <td>Description: {this.state.description}</td>
+                                <td>Description: {this.props.item.description}</td>
                             </tr>
                             <br />
                         </tbody>
@@ -133,17 +125,25 @@ class SingleExperience extends Component {
                             placeholder="Description"
                             required />
                         <br />
-                        <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleCancel}>Cancel</button>
-                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success" onClick={this.handleSave}>Save</button>
+                        <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleCancel}>Cancel</button>
+                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-outline-success waves-effect" onClick={this.handleSave}>Save</button>
                     </form>
                 </div>
         }
         return (
-            <div>
-                <div key={this.props.item._id}>
+
+            <div key={this.props.item._id}>
+                <div className="col-sm-1">
+                    <button onClick={this.handleEdit} className="btn btn-lg"><i class="fa fa-edit" /></button><br />
+                    <button onClick={this.handleDelete} className="btn btn-lg"><i class="fa fa-trash" /></button>
                 </div>
-                {singleExp}
+                <div className='col-sm-10'>
+                    {singleExp}
+                </div>
             </div>
+
+
+
         );
     }
 }

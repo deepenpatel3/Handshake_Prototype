@@ -13,10 +13,9 @@ class EducationDetails extends Component {
         this.handleToggle = this.handleToggle.bind(this);
         this.handleSave = this.handleSave.bind(this);
     }
-    componentWillMount() {
+    componentDidMount() {
         this.props.studentGetEducationDetails();
     }
-
     handleToggle = () => {
         if (this.state.addFlag === true) {
             this.setState({
@@ -30,7 +29,6 @@ class EducationDetails extends Component {
             // console.log('addflag after add button: after turning true', this.state.addFlag)
         }
     }
-
     handleSave = async (e) => {
         e.preventDefault();
         let data = {
@@ -48,6 +46,7 @@ class EducationDetails extends Component {
         })
     }
     render() {
+        // console.log("inside education render", this.props.educationDetails)
         let educationElement = null;
         if (this.state.addFlag === true) {
             educationElement =
@@ -103,8 +102,8 @@ class EducationDetails extends Component {
                             placeholder="GPA"
                             required />
                         <br />
-                        <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleToggle}>Cancel</button>
-                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success" onClick={this.handleSave}>Save</button>
+                        <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleToggle}>Cancel</button>
+                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-outline-success waves-effect" onClick={this.handleSave}>Save</button>
 
                     </form>
                 </div>
@@ -114,14 +113,15 @@ class EducationDetails extends Component {
                     <tr>
                         <td>
                             {this.props.educationDetails.map(single => <SingleEducationDetails key={single._id} item={single} />)}
-                            <div><button style={{ marginTop: '10px' }} className="btn btn-primary" onClick={this.handleToggle}>Add Education</button></div>
+
                         </td>
                     </tr>
                 </div>
         }
         return (
-            <div className="container">
+            <div className="container" >
                 <label>Education Details</label>
+                <button style={{ marginLeft: "545px", borderRadius: "30%" }} className="btn btn-secondary" onClick={this.handleToggle}>+</button>
                 <table className="table table-borderless">
                     <tbody>
                         {educationElement}

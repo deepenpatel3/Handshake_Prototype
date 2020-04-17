@@ -46,15 +46,12 @@ class ContactInfo extends Component {
 
         if (this.state.editFlag === false) {
             infoOrForm =
-                <ul className="container" >
-                    <li className="list-group-item">{this.props.email}</li>
-                    <li className="list-group-item">{this.props.phone}</li>
-                </ul>
+                <div style={{ marginTop: "10px" }} className="container" >
+                    <p ><i style={{ fontSize: "15px" }} class="fa">&#xf0e0;</i><span style={{ marginLeft: "6px" }}>{this.props.email}</span><i style={{ fontSize: "15px", marginLeft: "10px" }} class="fa">&#xf095;</i><span style={{ marginLeft: "6px" }}>{this.props.phone}</span></p>
 
-            editButton =
-                <button onClick={this.handleEdit} className="btn btn-primary btn-xs">
-                    Edit
-                </button>
+                </div>
+
+            editButton = <button onClick={this.handleEdit} className="btn btn-lg"><i class="fa fa-edit" /></button>
         }
         else {
             infoOrForm =
@@ -76,8 +73,8 @@ class ContactInfo extends Component {
                         placeholder="phone"
                         required />
                     <br />
-                    <button style={{ marginTop: '20px' }} className="btn btn-danger btn-xs" onClick={this.handleCancel}>Cancel</button>
-                    <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success btn-xs" onClick={this.handleSave}>Save</button>
+                    <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleCancel}>Cancel</button>
+                    <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-xs btn-outline-success waves-effect" onClick={this.handleSave}>Save</button>
                 </form>
         }
         return (

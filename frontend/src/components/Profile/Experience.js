@@ -108,8 +108,8 @@ class Experience extends Component {
                             placeholder="description"
                             required />
                         <br />
-                        <button style={{ marginTop: '20px' }} className="btn btn-danger" onClick={this.handleToggle}>Cancel</button>
-                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-success" onClick={this.handleSave}>Save</button>
+                        <button style={{ marginTop: '20px' }} className="btn btn-xs btn-outline-danger waves-effect" onClick={this.handleToggle}>Cancel</button>
+                        <button style={{ marginTop: '20px', marginLeft: '20px' }} className="btn btn-outline-success waves-effect" onClick={this.handleSave}>Save</button>
 
                     </form>
                 </div>
@@ -119,8 +119,6 @@ class Experience extends Component {
                     <tr>
                         <td>
                             {this.props.experienceDetails.map(single => <SingleExperience key={single._id} item={single} />)}
-                            <div><button style={{ marginTop: '20px' }} className="btn btn-primary" onClick={this.handleToggle}>Add Experience</button></div>
-
                         </td>
                     </tr>
 
@@ -129,6 +127,7 @@ class Experience extends Component {
         return (
             <div className="container">
                 <label>Experience</label>
+                <button style={{ marginLeft: '575px', borderRadius: "30%" }} className="btn btn-secondary" onClick={this.handleToggle}>+</button>
                 <table className="table table-borderless">
                     <tbody>
                         {/* <h1>{this.props.experienceDetails}</h1> */}

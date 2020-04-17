@@ -48,9 +48,9 @@ class Skills extends Component {
                     <form className='container' >
                         <input
                             type='text' id='skill' name='skill' placeholder='Enter your skill'
-                            required autoFocus />
-                        <button className='btn btn-default btn-xs' onClick={this.handleToggle} type='submit'>Cancel</button>
-                        <button className='btn btn-success btn-xs' onClick={this.handleSave}>Save</button>
+                            required autoFocus /><br /><br />
+                        <button className='btn btn-xs btn-outline-danger waves-effect' onClick={this.handleToggle} type='submit'>Cancel</button>
+                        <button style={{ marginLeft: "20px" }} className='btn btn-xs btn-outline-success waves-effect' onClick={this.handleSave}>Save</button>
                     </form>
                 </div>
         }
@@ -60,10 +60,6 @@ class Skills extends Component {
                     <tr>
                         <td>
                             <div>{this.props.skills.map(single => <SingleSkill key={single} item={single} />)}</div>
-                            <div>
-                                <button style={{ marginTop: '20px' }} className="btn btn-primary"
-                                    onClick={this.handleToggle}>Add Skill</button>
-                            </div>
                         </td>
                     </tr>
                 </div>
@@ -71,9 +67,9 @@ class Skills extends Component {
         return (
             <div className='container'>
                 <label>Skills</label>
+                <button style={{ marginLeft: '235px', borderRadius: "30%" }} className="btn btn-secondary" onClick={this.handleToggle}>+</button>
                 <table className="table table-borderless">
                     <tbody>
-
                         {skillElement}
                     </tbody>
                 </table>

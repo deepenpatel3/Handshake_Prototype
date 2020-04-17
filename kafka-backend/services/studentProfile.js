@@ -325,6 +325,7 @@ function add_experience(msg, callback) {
 }
 
 function update_experience(msg, callback) {
+    console.log("inside FUNCTION update_experience")
     Students.findOneAndUpdate({ _id: msg.body.SID },
         {
             "$set":
@@ -349,7 +350,7 @@ function update_experience(msg, callback) {
                 callback(null, null);
             }
             else {
-                // console.log("student- ", student)
+                // console.log("UPDATED EXPERIENCE- ", student)
                 callback(null, { experienceDetails: student.experienceDetails });
             }
         })

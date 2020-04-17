@@ -1,3 +1,4 @@
+import Modal from 'react-modal';
 import React, { Component } from 'react';
 import cookie from "react-cookies";
 import { connect } from "react-redux";
@@ -10,11 +11,18 @@ class BasicDetails extends Component {
         super(props);
         this.state = {
             profilePic: "",
-            editFlag: false
+            editFlag: false,
+            modalIsOpen: false
         }
         this.handleEdit = this.handleEdit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.handleSave = this.handleSave.bind(this);
+        this.setModalIsOpen = this.setModalIsOpen.bind(this);
+    }
+    setModalIsOpen = (value) => {
+        this.setState({
+            modalIsOpen: value
+        })
     }
     componentWillMount() {
         this.props.studentGetBasicDetails();
@@ -27,7 +35,7 @@ class BasicDetails extends Component {
             params: data
         })
             .then(response => {
-                console.log("student basic details", response.data);
+                // console.log("student basic details", response.data);
                 this.setState({
                     profilePic: response.data
                 })
@@ -54,22 +62,24 @@ class BasicDetails extends Component {
             editFlag: false
         })
     }
+    openModel = () => {
+
+    }
     render() {
         let infoOrForm = null;
-        let editButton = null;
-        console.log('Rerender with edit flag', this.state.editFlag);
+        // console.log('Rerender with edit flag', this.state.editFlag);
         if (this.state.editFlag === false) {
             infoOrForm =
-                <ul style={{ width: '150px' }}>
-                    <li className="list-group-item">{this.props.name}</li>
-                    <li className="list-group-item">School: {this.props.school}</li>
-                    <li className="list-group-item">City: {this.props.city}</li>
-                </ul>
-
-            editButton =
-                <button onClick={this.handleEdit} type="button" className="btn btn-primary btn-xs">
-                    Edit
-                </button>
+                <div className='row'>
+                    <div className='col'>
+                        <p >{this.props.name}</p>
+                        <p >{this.props.school}</p>
+                        <p >{this.props.city}</p>
+                    </div>
+                    <div className='col-1'>
+                        <button onClick={this.handleEdit} className="btn btn-lg"><i class="fa fa-edit" /></button>
+                    </div>
+                </div>
         }
         else {
             infoOrForm =
@@ -120,20 +130,25 @@ class BasicDetails extends Component {
         }
         return (
             <div className="container">
-                <div style={{ width: '1px solid black' }} className='col-md-6'>
+                <div style={{}} className='col-md-6'>
                     <div>
-                        <img src={this.state.profilePic} style={{ height: '150px', weight: '100px' }}></img>
-                        <form action={backendURL + "/updateProfilePic"} method="POST" encType='multipart/form-data' >
-                            <input style={{ display: "none" }} name='SID' value={cookie.load("SID")}></input>
-                            <input type='file' name='profilePic' id='profilePic'></input>
-                            <button className='btn btn-primary' type='submit'>Save</button>
-                        </form>
+                        <img src={this.state.profilePic} className="responsive" style={{ width: "100%", height: "auto" }}></img>
+
                     </div>
                 </div>
                 <div className='col-md-6'>
-                    <div><br />{infoOrForm}</div>
-                    <div>{editButton}</div>
+                    {infoOrForm}
                 </div>
+                <button className="btn btn-lg" onClick={() => this.setModalIsOpen(true)}><i class="fa fa-edit" /></button>
+                <Modal isOpen={this.state.modalIsOpen}>
+                    <form className='md-form' action={backendURL + "/updateProfilePic"} method="POST" encType='multipart/form-data' >
+                        <input style={{ display: "none" }} name='SID' value={cookie.load("SID")}></input>
+                        <input className="file-field" type='file' name='profilePic' id='profilePic'></input>
+                        <button className='btn btn-primary' type='submit'>Save</button>
+                    </form>
+                    <button onClick={() => this.setModalIsOpen(false)}>close</button>
+                </Modal>
+
             </div >
         );
     }
